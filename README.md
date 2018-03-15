@@ -1,2 +1,1 @@
-# Hands-On-Functional-Programming-in-RUST
-Hands-On Functional Programming in RUST, published by Packt
+# The code for this repository is under development :construction_worker:
