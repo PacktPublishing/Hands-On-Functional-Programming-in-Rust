@@ -1,0 +1,44 @@
+[package]
+name = "Chapter1"
+version = "1.0.0"
+
+[dependencies]
+lazy_static = "1"
+cached = "0.5"
+metaderive = { path = "metaderive" }
+
+[[bin]]
+name = "intro_binding"
+path = "intro_binding.rs"
+
+[[bin]]
+name = "intro_datatypes"
+path = "intro_datatypes.rs"
+
+[[bin]]
+name = "intro_expressions"
+path = "intro_expressions.rs"
+
+[[bin]]
+name = "intro_functions"
+path = "intro_functions.rs"
+
+[[bin]]
+name = "intro_generics"
+path = "intro_generics.rs"
+
+[[bin]]
+name = "intro_iterators"
+path = "intro_iterators.rs"
+
+[[bin]]
+name = "intro_metaprogramming"
+path = "intro_metaprogramming.rs"
+
+[[bin]]
+name = "intro_mixoopfp"
+path = "intro_mixoopfp.rs"
+
+[[bin]]
+name = "intro_patterns"
+path = "intro_patterns.rs"
