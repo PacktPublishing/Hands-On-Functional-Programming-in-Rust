@@ -69,7 +69,7 @@ fn main()
    }
 
    //5. Loop while there are remaining floor requests
-   let mut prev_loop_time = SystemTime::now();
+   let mut prev_loop_time = Instant::now();
    let termsize = termion::terminal_size().ok();
    let termwidth = termsize.map(|(w,_)| w-2).expect("termwidth") as u64;
    let termheight = termsize.map(|(_,h)| h-2).expect("termheight") as u64;
@@ -78,10 +78,10 @@ fn main()
    while floor_requests.len() > 0
    {
       //5.1. Update location, velocity, and acceleration
-      let dt = prev_loop_time.duration_since(prev_loop_time)
-                             .expect("SystemTime::duration_since failed")
-                             .as_fractional_secs();
-      prev_loop_time = SystemTime::now();
+      let now = Instant::now();
+      let dt = now.duration_since(prev_loop_time)
+                  .as_fractional_secs();
+      prev_loop_time = now;
 
       location = location + velocity * dt;
       velocity = velocity + acceleration * dt;
@@ -108,7 +108,7 @@ fn main()
       let carriage_floor = cmp::max(carriage_floor, 0);
       let carriage_floor = cmp::min(carriage_floor, floor_count-1);
       let mut terminal_buffer = vec![' ' as u8; (termwidth*termheight) as usize];
-      for ty in 0..(floor_count-1)
+      for ty in 0..floor_count-1
       {
          terminal_buffer[ (ty*termwidth + 0) as usize ] = '[' as u8;
          terminal_buffer[ (ty*termwidth + 1) as usize ] =
@@ -120,12 +120,12 @@ fn main()
       }
       let stats = vec![
          format!("Carriage at floor {}", carriage_floor+1),
-         format!("Location          {}", location),
-         format!("Velocity          {}", velocity),
-         format!("Acceleration      {}", acceleration),
-         format!("Voltage [up-down] {}", up_input_voltage-down_input_voltage)
+         format!("Location          {:.06}", location),
+         format!("Velocity          {:.06}", velocity),
+         format!("Acceleration      {:.06}", acceleration),
+         format!("Voltage [up-down] {:.06}", up_input_voltage-down_input_voltage),
       ];
-      for sy in 0..(stats.len()-1)
+      for sy in 0..stats.len()
       {
          for (sx,sc) in stats[sy].chars().enumerate()
          {
