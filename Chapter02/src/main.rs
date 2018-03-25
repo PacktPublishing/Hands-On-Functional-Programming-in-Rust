@@ -3,6 +3,10 @@ use std::time::Instant;
 use floating_duration::{TimeAsFloat, TimeFormat};
 use std::time::SystemTime;
 use std::{thread, time};
+use std::env;
+use std::fs::File;
+use std::io::{self, Read};
+use std::io::prelude::*;
 
 fn main()
 {
@@ -22,6 +26,40 @@ fn main()
    let mut floor_requests: Vec<u64> = Vec::new();
 
    //4. Parse input and store as building description and floor requests
+   match env::args().nth(1) {
+      None => {
+         let mut buffer = String::new();
+         io::stdin().read_to_string(&mut buffer)
+                    .expect("read_to_string failed");
+        
+         for (li,l) in buffer.lines().enumerate() {
+            if li==0 {
+               floor_count = l.parse::<u64>().unwrap();
+            } else if li==1 {
+               floor_height = l.parse::<f64>().unwrap();
+            } else {
+               floor_requests.push(l.parse::<u64>().unwrap());
+            }
+         }
+      },
+      Some(fp) => {
+         let mut buffer = String::new();
+         File::open(fp)
+              .expect("File::open failed")
+              .read_to_string(&mut buffer)
+              .expect("read_to_string failed");
+
+         for (li,l) in buffer.lines().enumerate() {
+            if li==0 {
+               floor_count = l.parse::<u64>().unwrap();
+            } else if li==1 {
+               floor_height = l.parse::<f64>().unwrap();
+            } else {
+               floor_requests.push(l.parse::<u64>().unwrap());
+            }
+         }
+      }
+   }
 
    //5. Loop while there are remaining floor requests
    let mut prev_loop_time = SystemTime::now();
@@ -36,8 +74,8 @@ fn main()
       location = location + velocity * dt;
       velocity = velocity + acceleration * dt;
       acceleration = {
-         let F = (up_input_voltage - down_input_voltage) * 8;
-         let m = 1200000;
+         let F = (up_input_voltage - down_input_voltage) * 8.0;
+         let m = 1200000.0;
          -9.8 + F/m
       };
 
