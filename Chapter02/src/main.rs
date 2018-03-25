@@ -71,8 +71,8 @@ fn main()
    //5. Loop while there are remaining floor requests
    let mut prev_loop_time = SystemTime::now();
    let termsize = termion::terminal_size().ok();
-   let termwidth = termsize.map(|(w,_)| w-2).expect("termwidth");
-   let termheight = termsize.map(|(_,h)| h-2).expect("termheight");
+   let termwidth = termsize.map(|(w,_)| w-2).expect("termwidth") as u64;
+   let termheight = termsize.map(|(_,h)| h-2).expect("termheight") as u64;
    let mut stdout = io::stdout().into_raw_mode().unwrap();
 
    while floor_requests.len() > 0
@@ -104,25 +104,35 @@ fn main()
 
       //5.4. Print realtime statistics
       print!("{}{}{}", clear::All, cursor::Goto(1, 1), cursor::Hide);
-      for tx in 0..(termwidth-1)
+      let carriage_floor = (location / floor_height).floor() as u64;
+      let carriage_floor = cmp::max(carriage_floor, 0);
+      let carriage_floor = cmp::min(carriage_floor, floor_count-1);
+      let mut terminal_buffer = vec![' ' as u8; (termwidth*termheight) as usize];
+      for ty in 0..(floor_count-1)
       {
-         for ty in 0..(termheight-1)
+         terminal_buffer[ (ty*termwidth + 0) as usize ] = '[' as u8;
+         terminal_buffer[ (ty*termwidth + 1) as usize ] =
+            if   (ty as u64)==((floor_count-1)-carriage_floor) { 'X' as u8 }
+            else { ' ' as u8 };
+         terminal_buffer[ (ty*termwidth + 2) as usize ] = ']' as u8;
+         terminal_buffer[ (ty*termwidth + termwidth-2) as usize ] = '\r' as u8;
+         terminal_buffer[ (ty*termwidth + termwidth-1) as usize ] = '\n' as u8;
+      }
+      let stats = vec![
+         format!("Carriage at floor {}", carriage_floor+1),
+         format!("Location          {}", location),
+         format!("Velocity          {}", velocity),
+         format!("Acceleration      {}", acceleration),
+         format!("Voltage [up-down] {}", up_input_voltage-down_input_voltage)
+      ];
+      for sy in 0..(stats.len()-1)
+      {
+         for (sx,sc) in stats[sy].chars().enumerate()
          {
-            write!(stdout, "{}", cursor::Goto(tx+1, ty+1));
-            let carriage_floor = (location / floor_height).floor() as u64;
-            let carriage_floor = cmp::max(carriage_floor, 0);
-            let carriage_floor = cmp::min(carriage_floor, floor_count-1);
-            if tx==0 && (ty as u64)<floor_count {
-               write!(stdout, "{}", "[");
-            } else if tx==1 && (ty as u64)==((floor_count-1)-carriage_floor) {
-               write!(stdout, "{}", "X");
-            } else if tx==2 && (ty as u64)<floor_count {
-               write!(stdout, "{}", "]");
-            } else {
-               write!(stdout, "{}", " ");
-            }
+            terminal_buffer[ sy*(termwidth as usize) + 6 + sx ] = sc as u8;
          }
       }
+      write!(stdout, "{}", String::from_utf8(terminal_buffer).ok().unwrap());
       stdout.flush().unwrap();
 
       thread::sleep(time::Duration::from_millis(10));
