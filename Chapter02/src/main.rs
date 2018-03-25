@@ -80,6 +80,13 @@ fn main()
       };
 
       //5.2. If next floor request in queue is satisfied, then remove from queue
+      let next_floor = floor_request[0];
+      if (location - (next_floor as f64)*floor_height).abs() &&
+         velocity.abs() < 0.01
+      {
+         velocity = 0.0;
+         floor_requests.remove(0);
+      }
 
       //5.3. Adjust motor control to process next floor request
 
