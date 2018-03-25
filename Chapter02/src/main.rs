@@ -5,8 +5,15 @@ use std::time::SystemTime;
 use std::{thread, time};
 use std::env;
 use std::fs::File;
-use std::io::{self, Read};
+use std::io::{self, Read, Write};
 use std::io::prelude::*;
+use std::process;
+extern crate termion;
+use termion::{clear, cursor, style};
+use termion::raw::IntoRawMode;
+use termion::input::TermRead;
+use termion::event::Key;
+use std::cmp;
 
 fn main()
 {
@@ -63,6 +70,11 @@ fn main()
 
    //5. Loop while there are remaining floor requests
    let mut prev_loop_time = SystemTime::now();
+   let termsize = termion::terminal_size().ok();
+   let termwidth = termsize.map(|(w,_)| w-2).expect("termwidth");
+   let termheight = termsize.map(|(_,h)| h-2).expect("termheight");
+   let mut stdout = io::stdout().into_raw_mode().unwrap();
+
    while floor_requests.len() > 0
    {
       //5.1. Update location, velocity, and acceleration
@@ -80,8 +92,8 @@ fn main()
       };
 
       //5.2. If next floor request in queue is satisfied, then remove from queue
-      let next_floor = floor_request[0];
-      if (location - (next_floor as f64)*floor_height).abs() &&
+      let next_floor = floor_requests[0];
+      if (location - (next_floor as f64)*floor_height).abs() < 0.01 &&
          velocity.abs() < 0.01
       {
          velocity = 0.0;
@@ -91,9 +103,32 @@ fn main()
       //5.3. Adjust motor control to process next floor request
 
       //5.4. Print realtime statistics
+      print!("{}{}{}", clear::All, cursor::Goto(1, 1), cursor::Hide);
+      for tx in 0..(termwidth-1)
+      {
+         for ty in 0..(termheight-1)
+         {
+            write!(stdout, "{}", cursor::Goto(tx+1, ty+1));
+            let carriage_floor = (location / floor_height).floor() as u64;
+            let carriage_floor = cmp::max(carriage_floor, 0);
+            let carriage_floor = cmp::min(carriage_floor, floor_count-1);
+            if tx==0 && (ty as u64)<floor_count {
+               write!(stdout, "{}", "[");
+            } else if tx==1 && (ty as u64)==((floor_count-1)-carriage_floor) {
+               write!(stdout, "{}", "X");
+            } else if tx==2 && (ty as u64)<floor_count {
+               write!(stdout, "{}", "]");
+            } else {
+               write!(stdout, "{}", " ");
+            }
+         }
+      }
+      stdout.flush().unwrap();
 
       thread::sleep(time::Duration::from_millis(10));
    }
+   write!(stdout, "{}{}", cursor::Goto(1, 1), cursor::Show).unwrap();
+   stdout.flush().unwrap();
 
    //6. Print summary
    println!("main");
