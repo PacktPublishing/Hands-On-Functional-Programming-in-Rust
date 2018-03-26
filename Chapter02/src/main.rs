@@ -79,7 +79,7 @@ fn main()
    let mut record_acceleration = Vec::new();
    let mut record_voltage = Vec::new();
 
-   while floor_requests.len() > 0
+   while record_voltage.len()<10 && floor_requests.len() > 0
    {
       //5.1. Update location, velocity, and acceleration
       let now = Instant::now();
@@ -146,8 +146,6 @@ fn main()
 
       thread::sleep(time::Duration::from_millis(10));
    }
-   write!(stdout, "{}{}", cursor::Goto(1, 1), cursor::Show).unwrap();
-   stdout.flush().unwrap();
 
    //6.1. Calculate summary statistics
    let record_location_N = record_location.len();
@@ -195,6 +193,24 @@ fn main()
    ).sqrt();
 
    //6.2. Print summary statistics
-   println!("summary");
+   write!(stdout, "{}{}{}", clear::All, cursor::Goto(1, 1), cursor::Show).unwrap();
+
+   write!(stdout, "Average of location                 {:.6}\r\n", record_location_avg);
+   write!(stdout, "Standard deviation of location      {:.6}\r\n", record_location_dev);
+   write!(stdout, "\r\n");
+
+   write!(stdout, "Average of velocity                 {:.6}\r\n", record_velocity_avg);
+   write!(stdout, "Standard deviation of velocity      {:.6}\r\n", record_velocity_dev);
+   write!(stdout, "\r\n");
+
+   write!(stdout, "Average of acceleration             {:.6}\r\n", record_acceleration_avg);
+   write!(stdout, "Standard deviation of acceleration  {:.6}\r\n", record_acceleration_dev);
+   write!(stdout, "\r\n");
+
+   write!(stdout, "Average of voltage                  {:.6}\r\n", record_voltage_avg);
+   write!(stdout, "Standard deviation of voltage       {:.6}\r\n", record_voltage_dev);
+   write!(stdout, "\r\n");
+
+   stdout.flush().unwrap();
 
 }
