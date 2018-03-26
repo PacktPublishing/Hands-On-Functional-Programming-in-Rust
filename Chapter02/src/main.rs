@@ -74,6 +74,10 @@ fn main()
    let termwidth = termsize.map(|(w,_)| w-2).expect("termwidth") as u64;
    let termheight = termsize.map(|(_,h)| h-2).expect("termheight") as u64;
    let mut stdout = io::stdout().into_raw_mode().unwrap();
+   let mut record_location = Vec::new();
+   let mut record_velocity = Vec::new();
+   let mut record_acceleration = Vec::new();
+   let mut record_voltage = Vec::new();
 
    while floor_requests.len() > 0
    {
@@ -82,6 +86,11 @@ fn main()
       let dt = now.duration_since(prev_loop_time)
                   .as_fractional_secs();
       prev_loop_time = now;
+
+      record_location.push(location);
+      record_velocity.push(velocity);
+      record_acceleration.push(acceleration);
+      record_voltage.push(up_input_voltage-down_input_voltage);
 
       location = location + velocity * dt;
       velocity = velocity + acceleration * dt;
@@ -140,7 +149,52 @@ fn main()
    write!(stdout, "{}{}", cursor::Goto(1, 1), cursor::Show).unwrap();
    stdout.flush().unwrap();
 
-   //6. Print summary
-   println!("main");
+   //6.1. Calculate summary statistics
+   let record_location_N = record_location.len();
+   let record_location_sum = record_location.clone().into_iter()
+       .fold(0.0, |a, b| a+b);
+   let record_location_avg = record_location_sum / (record_location_N as f64);
+   let record_location_dev = (
+       record_location.clone().into_iter()
+       .map(|v| (v - record_location_avg).powi(2))
+       .fold(0.0, |a, b| a+b)
+       / (record_location_N as f64)
+   ).sqrt();
+
+   let record_velocity_N = record_velocity.len();
+   let record_velocity_sum = record_velocity.clone().into_iter()
+       .fold(0.0, |a, b| a+b);
+   let record_velocity_avg = record_velocity_sum / (record_velocity_N as f64);
+   let record_velocity_dev = (
+       record_velocity.clone().into_iter()
+       .map(|v| (v - record_velocity_avg).powi(2))
+       .fold(0.0, |a, b| a+b)
+       / (record_velocity_N as f64)
+   ).sqrt();
+
+   let record_acceleration_N = record_acceleration.len();
+   let record_acceleration_sum = record_acceleration.clone().into_iter()
+       .fold(0.0, |a, b| a+b);
+   let record_acceleration_avg = record_acceleration_sum / (record_acceleration_N as f64);
+   let record_acceleration_dev = (
+       record_acceleration.clone().into_iter()
+       .map(|v| (v - record_acceleration_avg).powi(2))
+       .fold(0.0, |a, b| a+b)
+       / (record_acceleration_N as f64)
+   ).sqrt();
+
+   let record_voltage_N = record_voltage.len();
+   let record_voltage_sum = record_voltage.clone().into_iter()
+       .fold(0.0, |a, b| a+b);
+   let record_voltage_avg = record_voltage_sum / (record_voltage_N as f64);
+   let record_voltage_dev = (
+       record_voltage.clone().into_iter()
+       .map(|v| (v - record_voltage_avg).powi(2))
+       .fold(0.0, |a, b| a+b)
+       / (record_voltage_N as f64)
+   ).sqrt();
+
+   //6.2. Print summary statistics
+   println!("summary");
 
 }
