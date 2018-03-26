@@ -111,6 +111,55 @@ fn main()
 
       //5.3. Adjust motor control to process next floor request
 
+      //it will take t seconds to decelerate from velocity v at -1 m/s^2
+      let t = velocity.abs() / 1.0;
+
+      //during which time, the carriage will travel d=t * v/2 meters
+      //at an average velocity of v/2 before stopping
+      let d = t * (velocity/2.0);
+
+      //l = distance to next floor
+      let l = (location - (next_floor as f64)*floor_height).abs();
+
+      let target_acceleration = {
+         //are we going up?
+         let going_up = location < (next_floor as f64)*floor_height;
+
+         //if within comfortable deceleration range, decelerate
+         if l < d {
+            if going_up {
+               -1.0
+            } else {
+               1.0
+            }
+
+         //else if not at peak velocity, accelerate
+         } else if velocity.abs() < 5.0 {
+            if going_up {
+               1.0
+            } else {
+               -1.0
+            }
+
+         //else, we are at peak velocity
+         //but not within deceleration range,
+         //so we should do nothing
+         } else {
+            0.0
+         }
+      };
+
+      let gravity_adjusted_acceleration = target_acceleration - 9.8;
+      let target_force = gravity_adjusted_acceleration * 1200000.0;
+      let target_voltage = target_force / 8.0;
+      if target_voltage > 0.0 {
+         up_input_voltage = target_voltage;
+         down_input_voltage = 0.0;
+      } else {
+         up_input_voltage = 0.0;
+         down_input_voltage = target_voltage.abs();
+      };
+
       //5.4. Print realtime statistics
       print!("{}{}{}", clear::All, cursor::Goto(1, 1), cursor::Hide);
       let carriage_floor = (location / floor_height).floor() as u64;
