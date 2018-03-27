@@ -10,10 +10,30 @@ use std::io::prelude::*;
 use std::process;
 extern crate termion;
 use termion::{clear, cursor, style};
+use termion::raw;
 use termion::raw::IntoRawMode;
 use termion::input::TermRead;
 use termion::event::Key;
 use std::cmp;
+
+fn variable_summary<W: Write>(stdout: &mut raw::RawTerminal<W>, vname: String, data: Vec<f64>) {
+   //calculate statistics
+   let N = data.len();
+   let sum = data.clone().into_iter()
+            .fold(0.0, |a, b| a+b);
+   let avg = sum / (N as f64);
+   let dev = (
+       data.clone().into_iter()
+       .map(|v| (v - avg).powi(2))
+       .fold(0.0, |a, b| a+b)
+       / (N as f64)
+   ).sqrt();
+
+   //print formatted output
+   write!(stdout, "Average of {:25}{:.6}\r\n", vname, avg);
+   write!(stdout, "Standard deviation of {:14}{:.6}\r\n", vname, dev);
+   write!(stdout, "\r\n");
+}
 
 fn main()
 {
@@ -196,70 +216,12 @@ fn main()
       thread::sleep(time::Duration::from_millis(10));
    }
 
-   //6.1. Calculate summary statistics
-   let record_location_N = record_location.len();
-   let record_location_sum = record_location.clone().into_iter()
-       .fold(0.0, |a, b| a+b);
-   let record_location_avg = record_location_sum / (record_location_N as f64);
-   let record_location_dev = (
-       record_location.clone().into_iter()
-       .map(|v| (v - record_location_avg).powi(2))
-       .fold(0.0, |a, b| a+b)
-       / (record_location_N as f64)
-   ).sqrt();
-
-   let record_velocity_N = record_velocity.len();
-   let record_velocity_sum = record_velocity.clone().into_iter()
-       .fold(0.0, |a, b| a+b);
-   let record_velocity_avg = record_velocity_sum / (record_velocity_N as f64);
-   let record_velocity_dev = (
-       record_velocity.clone().into_iter()
-       .map(|v| (v - record_velocity_avg).powi(2))
-       .fold(0.0, |a, b| a+b)
-       / (record_velocity_N as f64)
-   ).sqrt();
-
-   let record_acceleration_N = record_acceleration.len();
-   let record_acceleration_sum = record_acceleration.clone().into_iter()
-       .fold(0.0, |a, b| a+b);
-   let record_acceleration_avg = record_acceleration_sum / (record_acceleration_N as f64);
-   let record_acceleration_dev = (
-       record_acceleration.clone().into_iter()
-       .map(|v| (v - record_acceleration_avg).powi(2))
-       .fold(0.0, |a, b| a+b)
-       / (record_acceleration_N as f64)
-   ).sqrt();
-
-   let record_voltage_N = record_voltage.len();
-   let record_voltage_sum = record_voltage.clone().into_iter()
-       .fold(0.0, |a, b| a+b);
-   let record_voltage_avg = record_voltage_sum / (record_voltage_N as f64);
-   let record_voltage_dev = (
-       record_voltage.clone().into_iter()
-       .map(|v| (v - record_voltage_avg).powi(2))
-       .fold(0.0, |a, b| a+b)
-       / (record_voltage_N as f64)
-   ).sqrt();
-
-   //6.2. Print summary statistics
+   //6 Calculate and print summary statistics
    write!(stdout, "{}{}{}", clear::All, cursor::Goto(1, 1), cursor::Show).unwrap();
-
-   write!(stdout, "Average of location                 {:.6}\r\n", record_location_avg);
-   write!(stdout, "Standard deviation of location      {:.6}\r\n", record_location_dev);
-   write!(stdout, "\r\n");
-
-   write!(stdout, "Average of velocity                 {:.6}\r\n", record_velocity_avg);
-   write!(stdout, "Standard deviation of velocity      {:.6}\r\n", record_velocity_dev);
-   write!(stdout, "\r\n");
-
-   write!(stdout, "Average of acceleration             {:.6}\r\n", record_acceleration_avg);
-   write!(stdout, "Standard deviation of acceleration  {:.6}\r\n", record_acceleration_dev);
-   write!(stdout, "\r\n");
-
-   write!(stdout, "Average of voltage                  {:.6}\r\n", record_voltage_avg);
-   write!(stdout, "Standard deviation of voltage       {:.6}\r\n", record_voltage_dev);
-   write!(stdout, "\r\n");
-
+   variable_summary(&mut stdout, "location".to_string(), record_location);
+   variable_summary(&mut stdout, "velocity".to_string(), record_velocity);
+   variable_summary(&mut stdout, "acceleration".to_string(), record_acceleration);
+   variable_summary(&mut stdout, "voltage".to_string(), record_voltage);
    stdout.flush().unwrap();
 
 }
