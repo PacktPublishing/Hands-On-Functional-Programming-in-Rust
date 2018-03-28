@@ -17,6 +17,12 @@ use termion::event::Key;
 use std::cmp;
 
 fn variable_summary<W: Write>(stdout: &mut raw::RawTerminal<W>, vname: String, data: Vec<f64>) {
+   let (avg, dev) = variable_summary_stats(data);
+   variable_summary_print(stdout, vname, avg, dev);
+}
+
+fn variable_summary_stats(data: Vec<f64>) -> (f64, f64)
+{
    //calculate statistics
    let N = data.len();
    let sum = data.clone().into_iter()
@@ -28,7 +34,11 @@ fn variable_summary<W: Write>(stdout: &mut raw::RawTerminal<W>, vname: String, d
        .fold(0.0, |a, b| a+b)
        / (N as f64)
    ).sqrt();
+   (avg, dev)
+}
 
+fn variable_summary_print<W: Write>(stdout: &mut raw::RawTerminal<W>, vname: String, avg: f64, dev: f64)
+{
    //print formatted output
    write!(stdout, "Average of {:25}{:.6}\r\n", vname, avg);
    write!(stdout, "Standard deviation of {:14}{:.6}\r\n", vname, dev);
@@ -224,4 +234,26 @@ fn main()
    variable_summary(&mut stdout, "voltage".to_string(), record_voltage);
    stdout.flush().unwrap();
 
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn variable_stats() {
+        let test_data = vec![
+           (vec![1.0, 2.0, 3.0, 4.0, 5.0], 3.0, 1.41),
+           (vec![1.0, 3.0, 5.0, 7.0, 9.0], 5.0, 2.83),
+           (vec![1.0, 9.0, 1.0, 9.0, 1.0], 4.2, 3.92),
+           (vec![1.0, 0.5, 0.7, 0.9, 0.6], 0.74, 0.19),
+           (vec![200.0, 3.0, 24.0, 92.0, 111.0], 86.0, 69.84),
+        ];
+        for (data, avg, dev) in test_data
+        {
+           let (ravg, rdev) = variable_summary_stats(data);
+           assert!( (avg-ravg).abs() < 0.1 );
+           assert!( (dev-rdev).abs() < 0.1 );
+        }
+    }
 }
