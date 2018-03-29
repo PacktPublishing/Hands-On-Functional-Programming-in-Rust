@@ -1,6 +1,10 @@
 extern crate elevator;
+extern crate timebomb;
+use timebomb::timeout_ms;
 
 #[test]
 fn test_main() {
-    assert!(true);
+   timeout_ms(|| {
+      elevator::run_simulation();
+   }, 300000);
 }

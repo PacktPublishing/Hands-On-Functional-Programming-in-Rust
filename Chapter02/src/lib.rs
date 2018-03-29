@@ -64,11 +64,29 @@ pub fn run_simulation()
 
    //4. Parse input and store as building description and floor requests
    match env::args().nth(1) {
-      None => {
+      Some(ref fp) if *fp == "-".to_string()  => {
          let mut buffer = String::new();
          io::stdin().read_to_string(&mut buffer)
                     .expect("read_to_string failed");
         
+         for (li,l) in buffer.lines().enumerate() {
+            if li==0 {
+               floor_count = l.parse::<u64>().unwrap();
+            } else if li==1 {
+               floor_height = l.parse::<f64>().unwrap();
+            } else {
+               floor_requests.push(l.parse::<u64>().unwrap());
+            }
+         }
+      },
+      None => {
+         let fp = "test1.txt";
+         let mut buffer = String::new();
+         File::open(fp)
+              .expect("File::open failed")
+              .read_to_string(&mut buffer)
+              .expect("read_to_string failed");
+
          for (li,l) in buffer.lines().enumerate() {
             if li==0 {
                floor_count = l.parse::<u64>().unwrap();
@@ -109,7 +127,7 @@ pub fn run_simulation()
    let mut record_acceleration = Vec::new();
    let mut record_voltage = Vec::new();
 
-   while record_voltage.len()<10 && floor_requests.len() > 0
+   while floor_requests.len() > 0
    {
       //5.1. Update location, velocity, and acceleration
       let now = Instant::now();
@@ -155,8 +173,19 @@ pub fn run_simulation()
          //are we going up?
          let going_up = location < (next_floor as f64)*floor_height;
 
-         //if within comfortable deceleration range, decelerate
-         if l < d {
+         //Do not exceed maximum velocity
+         if velocity.abs() >= 5.0 {
+            if going_up==(velocity>0.0) {
+               0.0
+            //decelerate if going in wrong direction
+            } else if going_up {
+               1.0
+            } else {
+               -1.0
+            }
+
+         //if within comfortable deceleration range and moving in right direction, decelerate
+         } else if l < d && going_up==(velocity>0.0) {
             if going_up {
                -1.0
             } else {
@@ -164,22 +193,16 @@ pub fn run_simulation()
             }
 
          //else if not at peak velocity, accelerate
-         } else if velocity.abs() < 5.0 {
+         } else {
             if going_up {
                1.0
             } else {
                -1.0
             }
-
-         //else, we are at peak velocity
-         //but not within deceleration range,
-         //so we should do nothing
-         } else {
-            0.0
          }
       };
 
-      let gravity_adjusted_acceleration = target_acceleration - 9.8;
+      let gravity_adjusted_acceleration = target_acceleration + 9.8;
       let target_force = gravity_adjusted_acceleration * 1200000.0;
       let target_voltage = target_force / 8.0;
       if target_voltage > 0.0 {
@@ -192,11 +215,11 @@ pub fn run_simulation()
 
       //5.4. Print realtime statistics
       print!("{}{}{}", clear::All, cursor::Goto(1, 1), cursor::Hide);
-      let carriage_floor = (location / floor_height).floor() as u64;
-      let carriage_floor = cmp::max(carriage_floor, 0);
+      let carriage_floor = (location / floor_height).floor();
+      let carriage_floor = if carriage_floor < 1.0 { 0 } else { carriage_floor as u64 };
       let carriage_floor = cmp::min(carriage_floor, floor_count-1);
       let mut terminal_buffer = vec![' ' as u8; (termwidth*termheight) as usize];
-      for ty in 0..floor_count-1
+      for ty in 0..floor_count
       {
          terminal_buffer[ (ty*termwidth + 0) as usize ] = '[' as u8;
          terminal_buffer[ (ty*termwidth + 1) as usize ] =
