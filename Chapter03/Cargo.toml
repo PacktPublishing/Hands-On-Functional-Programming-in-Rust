@@ -1,0 +1,8 @@
+[package]
+name = "elevator"
+version = "1.0.0"
+
+[dependencies]
+floating-duration = "0.1.2"
+termion = "1.0"
+timebomb = "0.1"
