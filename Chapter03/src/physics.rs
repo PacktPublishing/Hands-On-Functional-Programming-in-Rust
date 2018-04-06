@@ -76,12 +76,11 @@ pub fn simulate_elevator<MC: MotorController, DR: DataRecorder>(esp: ElevatorSpe
                   .as_fractional_secs();
       est.timestamp = now;
 
-
       est.location = est.location + est.velocity * dt;
       est.velocity = est.velocity + est.acceleration * dt;
       est.acceleration = {
          let F = est.motor_input.calculate_force();
-         let m = 1200000.0;
+         let m = esp.carriage_weight;
          -9.8 + F/m
       };
 
@@ -95,7 +94,7 @@ pub fn simulate_elevator<MC: MotorController, DR: DataRecorder>(esp: ElevatorSpe
       }
 
       //5.3. Adjust motor control to process next floor request
-      mc.poll(est.clone(), next_floor);
+      est.motor_input = mc.poll(est.clone(), next_floor);
 
       //5.4. Print realtime statistics
       dr.poll(est.clone(), next_floor);
