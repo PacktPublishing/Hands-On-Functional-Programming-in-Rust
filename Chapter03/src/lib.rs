@@ -1,4 +1,5 @@
 mod physics;
+mod motor;
 
 extern crate floating_duration;
 use std::time::Instant;

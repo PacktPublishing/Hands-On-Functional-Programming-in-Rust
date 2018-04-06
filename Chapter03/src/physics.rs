@@ -13,19 +13,19 @@ pub enum MotorInput
 #[derive(Clone)]
 pub struct ElevatorSpecification
 {
-   floor_count: u64,
-   floor_height: f64,
-   carriage_weight: f64
+   pub floor_count: u64,
+   pub floor_height: f64,
+   pub carriage_weight: f64
 }
 
 #[derive(Clone)]
 pub struct ElevatorState
 {
-   timestamp: Instant,
-   location: f64,
-   velocity: f64,
-   acceleration: f64,
-   motor_input: MotorInput
+   pub timestamp: Instant,
+   pub location: f64,
+   pub velocity: f64,
+   pub acceleration: f64,
+   pub motor_input: MotorInput
 }
 
 pub type FloorRequests = Vec<u64>;
