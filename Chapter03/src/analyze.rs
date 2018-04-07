@@ -12,13 +12,13 @@ use std::env;
 use std::fs::File;
 use std::io::{self, Read, Write, BufRead, BufReader};
 use std::io::prelude::*;
-use std::cmp;
 
 fn main()
 {
    let simlog = File::open("simulation.log").expect("read simulation log");
    let mut simlog = BufReader::new(&simlog);
    let mut esp = None;
+   let mut prev_est: Option<ElevatorState> = None;
    for line in simlog.lines() {
       let l = line.unwrap();
       match esp.clone() {
@@ -28,6 +28,26 @@ fn main()
          },
          Some(esp) => {
             let (est, dst): (ElevatorState,u64) = serde_json::from_str(&l).unwrap();
+
+            if let Some(prev_est) = prev_est {
+               let dt = est.timestamp - prev_est.timestamp;
+               let da = est.acceleration - prev_est.acceleration;
+               let jerk = da / dt;
+               if jerk.abs() > 0.21 {
+                  panic!("jerk is outside of acceptable limits: {:?}", est)
+               }
+            }
+            if est.acceleration.abs() > 2.1 {
+               panic!("acceleration is outside of acceptable limits: {:?}", est)
+            }
+            if est.velocity.abs() > 5.1 {
+               panic!("velocity is outside of acceptable limits: {:?}", est)
+            }
+            prev_est = Some(est);
+
+            //elevator should never backup
+            //trips should finish within 20% of theoretical limit
+
          }
       }
    }

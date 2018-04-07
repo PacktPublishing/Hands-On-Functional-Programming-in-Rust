@@ -3,14 +3,14 @@ use std::time::Instant;
 use floating_duration::{TimeAsFloat, TimeFormat};
 use std::{thread, time};
 
-#[derive(Clone,Serialize,Deserialize)]
+#[derive(Clone,Serialize,Deserialize,Debug)]
 pub enum MotorInput
 {
    Up { voltage: f64 },
    Down { voltage: f64 }
 }
 
-#[derive(Clone,Serialize,Deserialize)]
+#[derive(Clone,Serialize,Deserialize,Debug)]
 pub struct ElevatorSpecification
 {
    pub floor_count: u64,
@@ -18,7 +18,7 @@ pub struct ElevatorSpecification
    pub carriage_weight: f64
 }
 
-#[derive(Clone,Serialize,Deserialize)]
+#[derive(Clone,Serialize,Deserialize,Debug)]
 pub struct ElevatorState
 {
    pub timestamp: f64,
