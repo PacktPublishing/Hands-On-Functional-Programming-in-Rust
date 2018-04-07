@@ -68,11 +68,13 @@ impl<'a, W: Write> DataRecorder for SimpleDataRecorder<'a, W>
    {
       self.esp = esp.clone();
       self.log.write_all(serde_json::to_string(&esp.clone()).unwrap().as_bytes()).expect("write spec to log");
+      self.log.write_all(b"\r\n").expect("write spec to log");
    }
    fn poll(&mut self, est: ElevatorState, dst: u64)
    {
       let datum = (est.clone(), dst);
       self.log.write_all(serde_json::to_string(&datum).unwrap().as_bytes()).expect("write state to log");
+      self.log.write_all(b"\r\n").expect("write state to log");
 
       //5.4. Print realtime statistics
       print!("{}{}{}", clear::All, cursor::Goto(1, 1), cursor::Hide);
@@ -135,14 +137,17 @@ pub fn run_simulation()
       location: 0.0,
       velocity: 0.0,
       acceleration: 0.0,
-      motor_input: MotorInput::Up { voltage: 0.0 }
+      motor_input: MotorInput::Up {
+         //zero is positive force to counter gravity
+         voltage: 9.8 * (120000.0 / 8.0)
+      }
    };
 
    //3. Store input building description and floor requests
    let mut esp = ElevatorSpecification {
       floor_count: 0,
       floor_height: 0.0,
-      carriage_weight: 0.0
+      carriage_weight: 120000.0
    };
    let mut floor_requests = Vec::new();
 

@@ -82,6 +82,7 @@ pub fn simulate_elevator<MC: MotorController, DR: DataRecorder>(esp: ElevatorSpe
 
    //5. Loop while there are remaining floor requests
    let original_ts = Instant::now();
+   thread::sleep(time::Duration::from_millis(10));
    while req.len() > 0
    {
       //5.1. Update location, velocity, and acceleration
@@ -108,11 +109,11 @@ pub fn simulate_elevator<MC: MotorController, DR: DataRecorder>(esp: ElevatorSpe
          req.remove(0);
       }
 
-      //5.3. Adjust motor control to process next floor request
-      est.motor_input = mc.poll(est.clone(), next_floor);
-
       //5.4. Print realtime statistics
       dr.poll(est.clone(), next_floor);
+
+      //5.3. Adjust motor control to process next floor request
+      est.motor_input = mc.poll(est.clone(), next_floor);
 
       thread::sleep(time::Duration::from_millis(10));
    }
