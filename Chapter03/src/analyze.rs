@@ -18,8 +18,17 @@ fn main()
 {
    let simlog = File::open("simulation.log").expect("read simulation log");
    let mut simlog = BufReader::new(&simlog);
+   let mut esp = None;
    for line in simlog.lines() {
       let l = line.unwrap();
-      println!("{}", l); 
+      match esp.clone() {
+         None => {
+            let spec: ElevatorSpecification = serde_json::from_str(&l).unwrap();
+            esp = Some(spec);
+         },
+         Some(esp) => {
+            let (est, dst): (ElevatorState,u64) = serde_json::from_str(&l).unwrap();
+         }
+      }
    }
 }
