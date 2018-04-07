@@ -2,7 +2,7 @@ mod physics;
 mod motor;
 
 use physics::{ElevatorSpecification, ElevatorState, MotorInput, simulate_elevator, DataRecorder, MotorController, MotorVoltage};
-use motor::{SmoothMotorController};
+use motor::{SmoothMotorController, SimpleMotorController};
 
 #[macro_use] extern crate serde_derive;
 extern crate serde;
@@ -75,6 +75,11 @@ impl<'a, W: Write> DataRecorder for SimpleDataRecorder<'a, W>
       let datum = (est.clone(), dst);
       self.log.write_all(serde_json::to_string(&datum).unwrap().as_bytes()).expect("write state to log");
       self.log.write_all(b"\r\n").expect("write state to log");
+
+      self.record_location.push(est.location);
+      self.record_velocity.push(est.velocity);
+      self.record_acceleration.push(est.acceleration);
+      self.record_voltage.push(est.motor_input.voltage());
 
       //5.4. Print realtime statistics
       print!("{}{}{}", clear::All, cursor::Goto(1, 1), cursor::Hide);
@@ -217,10 +222,15 @@ pub fn run_simulation()
       record_acceleration: Vec::new(),
       record_voltage: Vec::new()
    };
+   let mut mc = SimpleMotorController {
+      esp: esp.clone()
+   };
+   /*
    let mut mc = SmoothMotorController {
       timestamp: 0.0,
       esp: esp.clone()
    };
+   */
 
    simulate_elevator(esp, est, floor_requests, &mut mc, &mut dr);
    dr.summary();
