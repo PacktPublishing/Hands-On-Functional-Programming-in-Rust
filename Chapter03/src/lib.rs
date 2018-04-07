@@ -4,6 +4,9 @@ mod motor;
 use physics::{ElevatorSpecification, ElevatorState, MotorInput, simulate_elevator, DataRecorder, MotorController, MotorVoltage};
 use motor::{SmoothMotorController};
 
+#[macro_use] extern crate serde_derive;
+extern crate serde;
+extern crate serde_json;
 extern crate floating_duration;
 use std::time::Instant;
 use std::env;
@@ -53,6 +56,7 @@ struct SimpleDataRecorder<'a, W: 'a + Write>
    termwidth: u64,
    termheight: u64,
    stdout: &'a mut raw::RawTerminal<W>,
+   log: File,
    record_location: Vec<f64>,
    record_velocity: Vec<f64>,
    record_acceleration: Vec<f64>,
@@ -62,10 +66,14 @@ impl<'a, W: Write> DataRecorder for SimpleDataRecorder<'a, W>
 {
    fn init(&mut self, esp: ElevatorSpecification, est: ElevatorState)
    {
-      self.esp = esp;
+      self.esp = esp.clone();
+      self.log.write_all(serde_json::to_string(&esp.clone()).unwrap().as_bytes()).expect("write spec to log");
    }
    fn poll(&mut self, est: ElevatorState, dst: u64)
    {
+      let datum = (est.clone(), dst);
+      self.log.write_all(serde_json::to_string(&datum).unwrap().as_bytes()).expect("write state to log");
+
       //5.4. Print realtime statistics
       print!("{}{}{}", clear::All, cursor::Goto(1, 1), cursor::Hide);
       let carriage_floor = (est.location / self.esp.floor_height).floor();
@@ -123,7 +131,7 @@ pub fn run_simulation()
    //1. Store location, velocity, and acceleration state
    //2. Store motor input voltage
    let mut est = ElevatorState {
-      timestamp: Instant::now(),
+      timestamp: 0.0,
       location: 0.0,
       velocity: 0.0,
       acceleration: 0.0,
@@ -198,13 +206,14 @@ pub fn run_simulation()
       termwidth: termsize.map(|(w,_)| w-2).expect("termwidth") as u64,
       termheight: termsize.map(|(_,h)| h-2).expect("termheight") as u64,
       stdout: &mut io::stdout().into_raw_mode().unwrap(),
+      log: File::create("simulation.log").expect("log file"),
       record_location: Vec::new(),
       record_velocity: Vec::new(),
       record_acceleration: Vec::new(),
       record_voltage: Vec::new()
    };
    let mut mc = SmoothMotorController {
-      timestamp: Instant::now(),
+      timestamp: 0.0,
       esp: esp.clone()
    };
 

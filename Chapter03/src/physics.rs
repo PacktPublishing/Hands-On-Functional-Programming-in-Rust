@@ -3,14 +3,14 @@ use std::time::Instant;
 use floating_duration::{TimeAsFloat, TimeFormat};
 use std::{thread, time};
 
-#[derive(Clone)]
+#[derive(Clone,Serialize,Deserialize)]
 pub enum MotorInput
 {
    Up { voltage: f64 },
    Down { voltage: f64 }
 }
 
-#[derive(Clone)]
+#[derive(Clone,Serialize,Deserialize)]
 pub struct ElevatorSpecification
 {
    pub floor_count: u64,
@@ -18,10 +18,10 @@ pub struct ElevatorSpecification
    pub carriage_weight: f64
 }
 
-#[derive(Clone)]
+#[derive(Clone,Serialize,Deserialize)]
 pub struct ElevatorState
 {
-   pub timestamp: Instant,
+   pub timestamp: f64,
    pub location: f64,
    pub velocity: f64,
    pub acceleration: f64,
@@ -81,13 +81,15 @@ pub fn simulate_elevator<MC: MotorController, DR: DataRecorder>(esp: ElevatorSpe
    dr.init(esp.clone(), est.clone());
 
    //5. Loop while there are remaining floor requests
+   let original_ts = Instant::now();
    while req.len() > 0
    {
       //5.1. Update location, velocity, and acceleration
       let now = Instant::now();
-      let dt = now.duration_since(est.timestamp)
+      let ts = now.duration_since(original_ts)
                   .as_fractional_secs();
-      est.timestamp = now;
+      let dt = ts - est.timestamp;
+      est.timestamp = ts;
 
       est.location = est.location + est.velocity * dt;
       est.velocity = est.velocity + est.acceleration * dt;

@@ -76,7 +76,7 @@ impl MotorController for SimpleMotorController
 pub struct SmoothMotorController
 {
    pub esp: ElevatorSpecification,
-   pub timestamp: Instant
+   pub timestamp: f64
 }
 
 impl MotorController for SmoothMotorController
@@ -130,8 +130,8 @@ impl MotorController for SmoothMotorController
          let going_up = est.location < (dst as f64)*self.esp.floor_height;
 
          //time elapsed since last poll
-         let dt = est.timestamp.duration_since(self.timestamp)
-                     .as_fractional_secs();
+         let dt = est.timestamp - self.timestamp;
+         self.timestamp = est.timestamp;
 
          //Do not exceed maximum velocity
          if est.velocity.abs() >= MAX_VELOCITY {
