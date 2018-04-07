@@ -55,6 +55,19 @@ impl MotorForce for MotorInput {
    }
 }
 
+pub trait MotorVoltage {
+   fn voltage(&self) -> f64;
+}
+impl MotorVoltage for MotorInput {
+   fn voltage(&self) -> f64
+   {
+      match *self {
+         MotorInput::Up { voltage: v } => { v }
+         MotorInput::Down { voltage: v } => { -v }
+      }
+   }
+}
+
 pub fn simulate_elevator<MC: MotorController, DR: DataRecorder>(esp: ElevatorSpecification, est: ElevatorState, req: FloorRequests,
                          mc: &mut MC, dr: &mut DR) {
 

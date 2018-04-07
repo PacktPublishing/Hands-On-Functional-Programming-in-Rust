@@ -5,7 +5,7 @@ use physics::{ElevatorSpecification, ElevatorState, MotorInput, MotorController}
 
 pub struct SimpleMotorController
 {
-   esp: ElevatorSpecification
+   pub esp: ElevatorSpecification
 }
 
 impl MotorController for SimpleMotorController
@@ -75,8 +75,8 @@ impl MotorController for SimpleMotorController
 
 pub struct SmoothMotorController
 {
-   esp: ElevatorSpecification,
-   timestamp: Instant
+   pub esp: ElevatorSpecification,
+   pub timestamp: Instant
 }
 
 impl MotorController for SmoothMotorController

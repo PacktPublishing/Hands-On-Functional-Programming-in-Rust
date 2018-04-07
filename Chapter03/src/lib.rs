@@ -1,7 +1,8 @@
 mod physics;
 mod motor;
 
-use physics::{ElevatorSpecification, ElevatorState, MotorInput, simulate_elevator, DataRecorder, MotorController};
+use physics::{ElevatorSpecification, ElevatorState, MotorInput, simulate_elevator, DataRecorder, MotorController, MotorVoltage};
+use motor::{SmoothMotorController};
 
 extern crate floating_duration;
 use std::time::Instant;
@@ -17,12 +18,12 @@ use termion::input::TermRead;
 use termion::event::Key;
 use std::cmp;
 
-fn variable_summary<W: Write>(stdout: &mut raw::RawTerminal<W>, vname: String, data: Vec<f64>) {
+fn variable_summary<W: Write>(stdout: &mut raw::RawTerminal<W>, vname: String, data: &Vec<f64>) {
    let (avg, dev) = variable_summary_stats(data);
    variable_summary_print(stdout, vname, avg, dev);
 }
 
-fn variable_summary_stats(data: Vec<f64>) -> (f64, f64)
+fn variable_summary_stats(data: &Vec<f64>) -> (f64, f64)
 {
    //calculate statistics
    let N = data.len();
@@ -46,18 +47,18 @@ fn variable_summary_print<W: Write>(stdout: &mut raw::RawTerminal<W>, vname: Str
    write!(stdout, "\r\n");
 }
 
-struct SimpleDataRecorder<W: Write>
+struct SimpleDataRecorder<'a, W: 'a + Write>
 {
    esp: ElevatorSpecification,
    termwidth: u64,
    termheight: u64,
-   stdout: &'static raw::RawTerminal<W>,
+   stdout: &'a mut raw::RawTerminal<W>,
    record_location: Vec<f64>,
    record_velocity: Vec<f64>,
    record_acceleration: Vec<f64>,
    record_voltage: Vec<f64>,
 }
-impl DataRecorder for SimpleDataRecorder
+impl<'a, W: Write> DataRecorder for SimpleDataRecorder<'a, W>
 {
    fn init(&mut self, esp: ElevatorSpecification, est: ElevatorState)
    {
@@ -103,15 +104,15 @@ impl DataRecorder for SimpleDataRecorder
 trait DataRecorderSummary {
    fn summary(&mut self);
 }
-impl DataRecorderSummary for SimpleDataRecorder<W> {
+impl<'a, W: Write> DataRecorderSummary for SimpleDataRecorder<'a, W> {
    fn summary(&mut self)
    {
       //6 Calculate and print summary statistics
       write!(self.stdout, "{}{}{}", clear::All, cursor::Goto(1, 1), cursor::Show).unwrap();
-      variable_summary(&mut self.stdout, "location".to_string(), self.record_location);
-      variable_summary(&mut self.stdout, "velocity".to_string(), self.record_velocity);
-      variable_summary(&mut self.stdout, "acceleration".to_string(), self.record_acceleration);
-      variable_summary(&mut self.stdout, "voltage".to_string(), self.record_voltage);
+      variable_summary(&mut self.stdout, "location".to_string(), &self.record_location);
+      variable_summary(&mut self.stdout, "velocity".to_string(), &self.record_velocity);
+      variable_summary(&mut self.stdout, "acceleration".to_string(), &self.record_acceleration);
+      variable_summary(&mut self.stdout, "voltage".to_string(), &self.record_voltage);
       self.stdout.flush().unwrap();
    }
 }
@@ -192,21 +193,22 @@ pub fn run_simulation()
    }
 
    let termsize = termion::terminal_size().ok();
-   let dr = SimpleDataRecorder {
+   let mut dr = SimpleDataRecorder {
       esp: esp.clone(),
       termwidth: termsize.map(|(w,_)| w-2).expect("termwidth") as u64,
       termheight: termsize.map(|(_,h)| h-2).expect("termheight") as u64,
-      stdout: io::stdout().into_raw_mode().unwrap(),
+      stdout: &mut io::stdout().into_raw_mode().unwrap(),
       record_location: Vec::new(),
       record_velocity: Vec::new(),
       record_acceleration: Vec::new(),
       record_voltage: Vec::new()
    };
-   let mc = SimpleMotorController {
+   let mut mc = SmoothMotorController {
+      timestamp: Instant::now(),
       esp: esp.clone()
    };
 
-   simulate_elevator(esp, est, floor_requests, mc, dr);
+   simulate_elevator(esp, est, floor_requests, &mut mc, &mut dr);
    dr.summary();
 
 }
