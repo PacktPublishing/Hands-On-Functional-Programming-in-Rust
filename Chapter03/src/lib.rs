@@ -222,15 +222,15 @@ pub fn run_simulation()
       record_acceleration: Vec::new(),
       record_voltage: Vec::new()
    };
+   /*
    let mut mc = SimpleMotorController {
       esp: esp.clone()
    };
-   /*
+   */
    let mut mc = SmoothMotorController {
       timestamp: 0.0,
       esp: esp.clone()
    };
-   */
 
    simulate_elevator(esp, est, floor_requests, &mut mc, &mut dr);
    dr.summary();
