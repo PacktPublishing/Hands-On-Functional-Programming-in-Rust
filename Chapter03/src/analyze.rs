@@ -18,6 +18,7 @@ fn main()
    let simlog = File::open("simulation.log").expect("read simulation log");
    let mut simlog = BufReader::new(&simlog);
    let mut esp = None;
+   let mut jerk = 0.0;
    let mut prev_est: Option<ElevatorState> = None;
    for line in simlog.lines() {
       let l = line.unwrap();
@@ -31,16 +32,16 @@ fn main()
 
             if let Some(prev_est) = prev_est {
                let dt = est.timestamp - prev_est.timestamp;
-               let da = est.acceleration - prev_est.acceleration;
-               let jerk = da / dt;
-               if jerk.abs() > 0.21 {
-                  panic!("jerk is outside of acceptable limits: {:?}", est)
+               let da = (est.acceleration - prev_est.acceleration).abs();
+               jerk = (jerk * (1.0 - dt)) + (da * dt);
+               if jerk.abs() > 0.22 {
+                  panic!("jerk is outside of acceptable limits: {} {:?}", jerk, est)
                }
             }
-            if est.acceleration.abs() > 2.1 {
+            if est.acceleration.abs() > 2.2 {
                panic!("acceleration is outside of acceptable limits: {:?}", est)
             }
-            if est.velocity.abs() > 5.1 {
+            if est.velocity.abs() > 5.5 {
                panic!("velocity is outside of acceptable limits: {:?}", est)
             }
             prev_est = Some(est);
