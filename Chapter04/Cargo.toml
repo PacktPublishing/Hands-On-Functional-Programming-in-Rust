@@ -1,0 +1,13 @@
+[package]
+name = "Chapter4"
+version = "1.0.0"
+
+[dependencies]
+
+[[bin]]
+name = "generics"
+path = "generics.rs"
+
+[[bin]]
+name = "polymorphism"
+path = "polymorphism.rs"
