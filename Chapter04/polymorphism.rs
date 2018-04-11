@@ -21,6 +21,22 @@ where T: std::ops::Mul<Output=T>
    }
 }
 
+fn foo<X>(x: X) -> X
+{
+   x
+}
+
+fn bar<X>(f: fn(X) -> X, x: X) -> X
+{
+   f(x)
+}
+
+fn baz<X,F>(f: F, x: X) -> X
+where F: Fn(X) -> X
+{
+   f(x)
+}
+
 fn main()
 {
 
@@ -40,4 +56,9 @@ fn main()
    //no method named powi
    //x.powi(3);
 
+   foo(1);
+   bar(foo,1);
+
+   baz(|x| x, 1);
+   baz(|x| foo(x), 1);
 }
