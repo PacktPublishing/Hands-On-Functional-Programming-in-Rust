@@ -15,3 +15,7 @@ path = "polymorphism.rs"
 [[bin]]
 name = "gadt"
 path = "gadt.rs"
+
+[[bin]]
+name = "lifetimes"
+path = "lifetimes.rs"
