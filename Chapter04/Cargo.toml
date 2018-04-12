@@ -11,3 +11,7 @@ path = "generics.rs"
 [[bin]]
 name = "polymorphism"
 path = "polymorphism.rs"
+
+[[bin]]
+name = "gadt"
+path = "gadt.rs"
