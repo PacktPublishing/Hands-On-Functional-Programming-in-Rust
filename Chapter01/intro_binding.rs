@@ -23,7 +23,14 @@ fn scoped4() {
 }
 
 fn scoped5() {
-    fn foo(v1: &Vec<u32>){}
+    fn foo(v1: &Vec<u32>)
+    {
+       for v in v1
+       {
+           println!("{}", v);
+       }
+    }
+    
     let v1 = vec![1, 2, 3];
     foo(&v1);
     //v1 is still valid, ownership has been returned
