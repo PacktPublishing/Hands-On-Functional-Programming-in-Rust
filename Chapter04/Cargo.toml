@@ -19,3 +19,7 @@ path = "gadt.rs"
 [[bin]]
 name = "lifetimes"
 path = "lifetimes.rs"
+
+[[bin]]
+name = "parameters"
+path = "parameters.rs"
