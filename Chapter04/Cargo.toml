@@ -37,3 +37,7 @@ path = "lifetimes.rs"
 [[bin]]
 name = "parameters"
 path = "parameters.rs"
+
+[[bin]]
+name = "serialize"
+path = "serialize.rs"

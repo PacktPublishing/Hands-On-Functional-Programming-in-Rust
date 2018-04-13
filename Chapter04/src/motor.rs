@@ -64,7 +64,7 @@ impl MotorController for SimpleMotorController
 
       let gravity_adjusted_acceleration = target_acceleration + 9.8;
       let target_force = gravity_adjusted_acceleration * self.esp.carriage_weight;
-      let target_voltage = target_force / 8.0;
+      let target_voltage = self.esp.motor.voltage_of_force(target_force);
       if target_voltage > 0.0 {
          Box::new(SimpleMotorInput::Up { voltage: target_voltage })
       } else {
@@ -160,7 +160,7 @@ impl MotorController for SmoothMotorController
 
       let gravity_adjusted_acceleration = target_acceleration + 9.8;
       let target_force = gravity_adjusted_acceleration * self.esp.carriage_weight;
-      let target_voltage = target_force / 8.0;
+      let target_voltage = self.esp.motor.voltage_of_force(target_force);
       if !target_voltage.is_finite() {
          //divide by zero etc.
          //may happen if time delta underflows

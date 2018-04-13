@@ -4,6 +4,25 @@ use floating_duration::{TimeAsFloat, TimeFormat};
 use std::{thread, time};
 use serde;
 
+pub trait Motor
+{
+   fn force_of_voltage(&self, v: f64) -> f64;
+   fn voltage_of_force(&self, v: f64) -> f64;
+}
+
+pub struct SimpleMotor;
+impl Motor for SimpleMotor
+{
+   fn force_of_voltage(&self, v: f64) -> f64
+   {
+      8.0 * v
+   }
+   fn voltage_of_force(&self, v: f64) -> f64
+   {
+      v / 8.0
+   }
+}
+
 #[derive(Clone,Serialize,Deserialize,Debug)]
 pub enum SimpleMotorInput
 {
@@ -16,12 +35,48 @@ pub trait MotorInput: MotorForce + MotorVoltage
 }
 impl MotorInput for SimpleMotorInput {}
 
-#[derive(Clone,Serialize,Deserialize,Debug)]
 pub struct ElevatorSpecification
 {
    pub floor_count: u64,
    pub floor_height: f64,
-   pub carriage_weight: f64
+   pub carriage_weight: f64,
+   pub motor: Box<Motor>
+}
+pub trait ElevatorSpecificationClone
+{
+   fn clone(&self) -> ElevatorSpecification;
+   fn dump(&self) -> (u64,f64,f64,u64);
+   fn load((u64,f64,f64,u64)) -> ElevatorSpecification;
+}
+impl ElevatorSpecificationClone for ElevatorSpecification
+{
+   fn clone(&self) -> ElevatorSpecification
+   {
+      ElevatorSpecification
+      {
+         floor_count: self.floor_count,
+         floor_height: self.floor_height,
+         carriage_weight: self.carriage_weight,
+         motor: Box::new(SimpleMotor)
+      }
+   }
+   fn dump(&self) -> (u64,f64,f64,u64)
+   {
+      (self.floor_count,
+       self.floor_height,
+       self.carriage_weight,
+       0)
+   }
+   fn load(esp: (u64,f64,f64,u64)) -> ElevatorSpecification
+   {
+      ElevatorSpecification
+      {
+         floor_count: esp.0,
+         floor_height: esp.1,
+         carriage_weight: esp.2,
+         motor: Box::new(SimpleMotor)
+      }
+   }
 }
 
 pub struct ElevatorState

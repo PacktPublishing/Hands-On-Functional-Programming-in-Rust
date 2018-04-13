@@ -1,7 +1,8 @@
 mod physics;
 mod motor;
 
-use physics::{ElevatorSpecification, ElevatorState, MotorInput, simulate_elevator, DataRecorder, MotorController, MotorVoltage, ElevatorStateClone};
+use physics::{ElevatorSpecification, ElevatorState, MotorInput, simulate_elevator, DataRecorder, MotorController, MotorVoltage,
+              ElevatorStateClone, ElevatorSpecificationClone};
 
 #[macro_use] extern crate serde_derive;
 extern crate serde;
@@ -31,12 +32,12 @@ fn main()
    let mut start_location = 0.0;
    for line in simlog.lines() {
       let l = line.unwrap();
-      match esp.clone() {
+      match esp {
          None => {
-            let spec: ElevatorSpecification = serde_json::from_str(&l).unwrap();
-            esp = Some(spec);
+            let spec: (u64,f64,f64,u64) = serde_json::from_str(&l).unwrap();
+            esp = Some(ElevatorSpecification::load(spec));
          },
-         Some(esp) => {
+         Some(ref esp) => {
             let (est, dst): ((f64,f64,f64,f64,f64),u64) = serde_json::from_str(&l).unwrap();
             let est = ElevatorState::load(est);
             let dl = dst_timing.len();
