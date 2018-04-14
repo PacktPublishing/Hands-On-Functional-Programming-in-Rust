@@ -24,6 +24,25 @@ type Tuple2 = (u32, String, f64);
 //anyone coming from an ML family language may appreciate
 use std::ops::Mul;
 
+struct Point
+{
+    x: i32,
+    y: i32
+}
+
+impl Mul for Point
+{
+    type Output = Point;
+    fn mul(self, other: Point) -> Point
+    {
+        Point
+        {
+            x: self.x * other.x,
+            y: self.y * other.y
+        }
+    }
+}
+
 //Standard library collections etc. are generic
 use std::collections::HashMap;
 type CustomHashMap = HashMap<i32,u32>;
