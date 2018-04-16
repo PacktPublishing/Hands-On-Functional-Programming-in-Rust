@@ -28,7 +28,13 @@ fn foo_u32(x: u32) -> u32
 {
     x*x
 }
+
 fn foo_f32(x: f32) -> f32
+{
+    x*x
+}
+
+fn foo_i32(x: i32) -> i32
 {
     x*x
 }
