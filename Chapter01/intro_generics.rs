@@ -10,6 +10,12 @@ struct PointF32
     y: f32
 }
 
+struct PointI32
+{
+    x: i32,
+    y: i32
+}
+
 //can be written with generics
 struct Point<T>
 {
