@@ -1,6 +1,7 @@
+extern crate libc;
 
-mod motor_controllers;
-mod elevator_drivers;
-mod buildings;
-mod physics;
-mod trip_planning;
+pub mod motor_controllers;
+pub mod elevator_drivers;
+pub mod buildings;
+pub mod physics;
+pub mod trip_planning;
