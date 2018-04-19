@@ -6,9 +6,10 @@ pub trait Building
    fn get_elevator_driver(&self) -> Box<ElevatorDriver>;
    fn get_motor_controller(&self) -> Box<MotorController>;
    fn get_floor_heights(&self) -> Vec<f64>;
+   fn get_carriage_weight(&self) -> f64;
 }
 
-struct Building1;
+pub struct Building1;
 impl Building for Building1 {
    fn get_elevator_driver(&self) -> Box<ElevatorDriver>
    {
@@ -22,9 +23,13 @@ impl Building for Building1 {
    {
       vec![8.0, 4.0, 4.0, 4.0, 4.0]
    }
+   fn get_carriage_weight(&self) -> f64
+   {
+      1200.0
+   }
 }
 
-struct Building2;
+pub struct Building2;
 impl Building for Building2 {
    fn get_elevator_driver(&self) -> Box<ElevatorDriver>
    {
@@ -38,9 +43,13 @@ impl Building for Building2 {
    {
       vec![5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0]
    }
+   fn get_carriage_weight(&self) -> f64
+   {
+      1350.0
+   }
 }
 
-struct Building3;
+pub struct Building3;
 impl Building for Building3 {
    fn get_elevator_driver(&self) -> Box<ElevatorDriver>
    {
@@ -53,5 +62,9 @@ impl Building for Building3 {
    fn get_floor_heights(&self) -> Vec<f64>
    {
       vec![6.0, 4.0, 4.0, 4.0]
+   }
+   fn get_carriage_weight(&self) -> f64
+   {
+      1400.0
    }
 }

@@ -1,7 +1,7 @@
 
 pub struct FloorRequests
 {
-   requests: Vec<u64>
+   pub requests: Vec<u64>
 }
 
 pub trait RequestQueue
