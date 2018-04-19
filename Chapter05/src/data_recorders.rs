@@ -49,7 +49,15 @@ pub fn newSimpleDataRecorder(esp: Box<Building>) -> Box<DataRecorder>
 
 fn getCarriageFloor(floorHeights: Vec<f64>, height: f64) -> u64
 {
-   0
+   let mut c = 0.0;
+   for fi in 0..floorHeights.len()
+   {
+      c += floorHeights[fi];
+      if height <= c {
+         return (fi as u64)
+      }
+   }
+   (floorHeights.len()-1) as u64
 }
 
 impl<W: Write> DataRecorder for SimpleDataRecorder<W>
