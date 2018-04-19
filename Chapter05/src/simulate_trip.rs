@@ -3,9 +3,9 @@ extern crate floating_duration;
 
 use elevator::buildings::{Building, Building1, Building2, Building3};
 use elevator::trip_planning::{FloorRequests, RequestQueue};
-use elevator::physics::{ElevatorState};
-use elevator::motion_controllers::{SmoothMotionController};
-use elevator::data_recorders::{newSimpleDataRecorder};
+use elevator::physics::{ElevatorState, simulate_elevator};
+use elevator::motion_controllers::{SmoothMotionController, MotionController};
+use elevator::data_recorders::{newSimpleDataRecorder, DataRecorder};
 
 use std::time::Instant;
 use std::env;
@@ -29,9 +29,9 @@ pub fn run_simulation()
 
    //3. Store input building description and floor requests
    let mut esp: Box<Building> = Box::new(Building1);
-   let mut floor_requests = FloorRequests {
+   let mut floor_requests: Box<RequestQueue> = Box::new(FloorRequests {
       requests: Vec::new()
-   };
+   });
 
    //4. Parse input and store as building description and floor requests
    match env::args().nth(1) {
@@ -108,16 +108,15 @@ pub fn run_simulation()
       }
    }
 
-   let mut dr = newSimpleDataRecorder(esp.clone());
-   let mut mc = SmoothMotionController {
+   let mut dr: Box<DataRecorder> = newSimpleDataRecorder(esp.clone());
+   let mut mc: Box<MotionController> = Box::new(SmoothMotionController {
       timestamp: 0.0,
       esp: esp.clone()
-   };
+   });
 
-   /*
-   simulate_elevator(esp, est, floor_requests, &mut mc, &mut dr);
+   simulate_elevator(esp, est, &mut floor_requests, &mut mc, &mut dr);
    dr.summary();
-   */
+
 }
 
 fn main()
