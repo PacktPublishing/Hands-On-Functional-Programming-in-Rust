@@ -108,7 +108,7 @@ pub fn run_simulation()
       }
    }
 
-   let mut dr = newSimpleDataRecorder();
+   let mut dr = newSimpleDataRecorder(esp.clone());
    let mut mc = SmoothMotionController {
       timestamp: 0.0,
       esp: esp.clone()

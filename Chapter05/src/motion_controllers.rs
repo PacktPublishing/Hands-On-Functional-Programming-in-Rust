@@ -1,4 +1,4 @@
-use physics::{ElevatorState};
+use physics::{ElevatorState, MAX_JERK, MAX_ACCELERATION, MAX_VELOCITY};
 use buildings::{Building};
 
 pub trait MotionController
@@ -34,10 +34,6 @@ impl MotionController for SmoothMotionController
    fn poll(&mut self, est: ElevatorState, dst: u64) -> f64
    {
       //5.3. Adjust motor control to process next floor request
-
-      let MAX_JERK = 0.2;
-      let MAX_ACCELERATION = 2.0;
-      let MAX_VELOCITY = 5.0;
 
       //it will take t seconds to reach max from max
       let t_accel = MAX_ACCELERATION / MAX_JERK;

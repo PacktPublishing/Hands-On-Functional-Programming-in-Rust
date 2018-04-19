@@ -8,6 +8,18 @@ pub trait Building
    fn get_floor_heights(&self) -> Vec<f64>;
    fn get_carriage_weight(&self) -> f64;
    fn clone(&self) -> Box<Building>;
+   fn serialize(&self) -> u64;
+}
+
+pub fn deserialize(n: u64) -> Box<Building>
+{
+   if n==1 {
+      Box::new(Building1)
+   } else if n==2 {
+      Box::new(Building2)
+   } else {
+      Box::new(Building3)
+   }
 }
 
 pub struct Building1;
@@ -30,6 +42,10 @@ impl Building for Building1 {
    }
    fn clone(&self) -> Box<Building> {
       Box::new(Building1)
+   }
+   fn serialize(&self) -> u64
+   {
+      2
    }
 }
 
@@ -54,6 +70,10 @@ impl Building for Building2 {
    fn clone(&self) -> Box<Building> {
       Box::new(Building2)
    }
+   fn serialize(&self) -> u64
+   {
+      2
+   }
 }
 
 pub struct Building3;
@@ -76,5 +96,9 @@ impl Building for Building3 {
    }
    fn clone(&self) -> Box<Building> {
       Box::new(Building3)
+   }
+   fn serialize(&self) -> u64
+   {
+      3
    }
 }
