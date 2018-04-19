@@ -8,4 +8,5 @@ pub mod elevator_drivers;
 pub mod buildings;
 pub mod physics;
 pub mod trip_planning;
-pub mod data_recorder;
+pub mod data_recorders;
+pub mod motion_controllers;

@@ -1,5 +1,5 @@
 use elevator_drivers::{ElevatorDriver, ElevatorDriver1, ElevatorDriver2, ElevatorDriver3};
-use motor_controllers::{MotorInput, MotorController, newMotorController1, newMotorController2, newMotorController3};
+use motor_controllers::{MotorController, newMotorController1, newMotorController2, newMotorController3};
 
 pub trait Building
 {
@@ -7,6 +7,7 @@ pub trait Building
    fn get_motor_controller(&self) -> Box<MotorController>;
    fn get_floor_heights(&self) -> Vec<f64>;
    fn get_carriage_weight(&self) -> f64;
+   fn clone(&self) -> Box<Building>;
 }
 
 pub struct Building1;
@@ -26,6 +27,9 @@ impl Building for Building1 {
    fn get_carriage_weight(&self) -> f64
    {
       1200.0
+   }
+   fn clone(&self) -> Box<Building> {
+      Box::new(Building1)
    }
 }
 
@@ -47,6 +51,9 @@ impl Building for Building2 {
    {
       1350.0
    }
+   fn clone(&self) -> Box<Building> {
+      Box::new(Building2)
+   }
 }
 
 pub struct Building3;
@@ -66,5 +73,8 @@ impl Building for Building3 {
    fn get_carriage_weight(&self) -> f64
    {
       1400.0
+   }
+   fn clone(&self) -> Box<Building> {
+      Box::new(Building3)
    }
 }

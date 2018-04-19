@@ -4,6 +4,8 @@ extern crate floating_duration;
 use elevator::buildings::{Building, Building1, Building2, Building3};
 use elevator::trip_planning::{FloorRequests, RequestQueue};
 use elevator::physics::{ElevatorState};
+use elevator::motion_controllers::{SmoothMotionController};
+use elevator::data_recorders::{newSimpleDataRecorder};
 
 use std::time::Instant;
 use std::env;
@@ -106,29 +108,13 @@ pub fn run_simulation()
       }
    }
 
-   /*
-   let termsize = termion::terminal_size().ok();
-   let mut dr = SimpleDataRecorder {
-      esp: esp.clone(),
-      termwidth: termsize.map(|(w,_)| w-2).expect("termwidth") as u64,
-      termheight: termsize.map(|(_,h)| h-2).expect("termheight") as u64,
-      stdout: &mut io::stdout().into_raw_mode().unwrap(),
-      log: File::create("simulation.log").expect("log file"),
-      record_location: Vec::new(),
-      record_velocity: Vec::new(),
-      record_acceleration: Vec::new(),
-      record_voltage: Vec::new()
-   };
-   /*
-   let mut mc = SimpleMotorController {
-      esp: esp.clone()
-   };
-   */
-   let mut mc = SmoothMotorController {
+   let mut dr = newSimpleDataRecorder();
+   let mut mc = SmoothMotionController {
       timestamp: 0.0,
       esp: esp.clone()
    };
 
+   /*
    simulate_elevator(esp, est, floor_requests, &mut mc, &mut dr);
    dr.summary();
    */

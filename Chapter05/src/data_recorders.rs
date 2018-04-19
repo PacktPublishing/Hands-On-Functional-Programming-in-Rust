@@ -8,6 +8,13 @@ pub trait DataRecorder
    fn summary(&mut self);
 }
 
+pub struct SimpleDataRecorder;
+
+pub fn newSimpleDataRecorder() -> SimpleDataRecorder
+{
+   SimpleDataRecorder
+}
+
 /*
 use physics::{ElevatorSpecification, ElevatorState, MotorInput, SimpleMotorInput, simulate_elevator, DataRecorder, MotorController, MotorVoltage,
               ElevatorStateClone, ElevatorSpecificationClone, Motor, SimpleMotor};

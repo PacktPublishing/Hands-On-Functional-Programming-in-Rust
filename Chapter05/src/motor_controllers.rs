@@ -1,5 +1,8 @@
 use libc::c_double;
 
+use buildings::{Building};
+use physics::{ElevatorState};
+
 #[link(name = "motor1")]
 extern {
    pub fn motor1_adjust_motor(target_force: c_double) -> c_double;
@@ -144,3 +147,4 @@ impl MotorController for MotorController3
       90000.0
    }
 }
+
