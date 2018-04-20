@@ -22,6 +22,29 @@ pub fn deserialize(n: u64) -> Box<Building>
    }
 }
 
+pub fn getCarriageFloor(floorHeights: Vec<f64>, height: f64) -> u64
+{
+   let mut c = 0.0;
+   for fi in 0..floorHeights.len()
+   {
+      c += floorHeights[fi];
+      if height <= c {
+         return (fi as u64)
+      }
+   }
+   (floorHeights.len()-1) as u64
+}
+
+pub fn getCumulativeFloorHeight(heights: Vec<f64>, floor: u64) -> f64
+{
+   let mut c = 0.0;
+   for fi in 0..floor
+   {
+      c += heights[fi as usize];
+   };
+   c
+}
+
 pub struct Building1;
 impl Building for Building1 {
    fn get_elevator_driver(&self) -> Box<ElevatorDriver>

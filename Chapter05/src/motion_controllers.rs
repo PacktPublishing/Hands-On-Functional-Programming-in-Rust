@@ -1,5 +1,5 @@
 use physics::{ElevatorState, MAX_JERK, MAX_ACCELERATION, MAX_VELOCITY};
-use buildings::{Building};
+use buildings::{Building, getCumulativeFloorHeight};
 
 pub trait MotionController
 {
@@ -11,16 +11,6 @@ pub struct SmoothMotionController
 {
    pub esp: Box<Building>,
    pub timestamp: f64
-}
-
-fn getCumulativeFloorHeight(heights: Vec<f64>, floor: u64) -> f64
-{
-   let mut c = 0.0;
-   for fi in 0..floor
-   {
-      c += heights[fi as usize];
-   };
-   c
 }
 
 impl MotionController for SmoothMotionController
