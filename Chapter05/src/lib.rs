@@ -3,6 +3,7 @@ extern crate libc;
 extern crate serde;
 extern crate serde_json;
 extern crate termion;
+extern crate floating_duration;
 
 pub mod motor_controllers;
 pub mod elevator_drivers;
