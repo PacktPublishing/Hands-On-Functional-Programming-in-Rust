@@ -154,6 +154,9 @@ pub fn run_operator()
          esp.get_motor_controller().adjust_motor(est.motor_input);
 
          thread::sleep(time::Duration::from_millis(1));
+      } else {
+         //Adjust motor to not move
+         esp.get_motor_controller().adjust_motor(0.0);
       }
 
       //check for dynamic floor requests
