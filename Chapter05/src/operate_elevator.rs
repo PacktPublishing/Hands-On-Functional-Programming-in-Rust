@@ -150,6 +150,9 @@ pub fn run_operator()
          //5.3. Adjust motor control to process next floor request
          est.motor_input = mc.poll(est.clone(), dst);
 
+         //Adjust motor
+         esp.get_motor_controller().adjust_motor(est.motor_input);
+
          thread::sleep(time::Duration::from_millis(1));
       }
 
