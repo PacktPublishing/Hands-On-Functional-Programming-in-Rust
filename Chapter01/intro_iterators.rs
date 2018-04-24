@@ -16,6 +16,6 @@ fn main() {
 
     for i in (0..10) {}
 
-    let v: Vec<u32> = (0..10).collect();
+    (0..10).collect::<Vec<u64>>();
 
 }

@@ -38,14 +38,14 @@ fn main() {
 
     (1, 1.0, "".to_string());
 
-    let t = Term::TermVar {
+    let mut t = Term::TermVar {
         symbol: "".to_string()
     };
     match t {
        Term::TermVal { value: v1 } => v1,
        Term::TermVar { symbol: v1 } => v1,
-       Term::TermApp { f: v1, x: v2 } => "TermApp(?,?)".to_string(),
-       Term::TermAbs { arg: v1, body: v2 } => "TermAbs(?,?)".to_string()
+       Term::TermApp { f: ref v1, x: ref v2 } => "TermApp(?,?)".to_string(),
+       Term::TermAbs { arg: ref mut v1, body: ref mut v2 } => "TermAbs(?,?)".to_string()
     };
 
 }
