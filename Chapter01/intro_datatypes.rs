@@ -1,5 +1,10 @@
 //It can be helpful to create shorthand names for complex types
+//alias
 type Name = String;
+
+//newtype
+struct NewName(String);
+
 
 //Structs can be repetitive if you just want a way to store multiple values together
 struct Data1

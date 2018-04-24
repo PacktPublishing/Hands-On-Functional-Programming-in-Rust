@@ -42,7 +42,7 @@ fn thread1() {
    let handle = thread::spawn(move || {
       println!("Here's a vector: {:?}", v);
    });
-   handle.join();
+   handle.join().ok();
 }
 
 fn thread2()
@@ -70,7 +70,7 @@ fn thread3() {
       let v = vec![1, 2, 3];
       sender.send(v).unwrap();
    });
-   handle.join();
+   handle.join().ok();
    receiver.recv().unwrap();
 }
 
