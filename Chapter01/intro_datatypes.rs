@@ -25,6 +25,11 @@ struct Data2
 type Tuple1 = (i32, f64, String);
 type Tuple2 = (u32, String, f64);
 
+//these types are not equivalent to tuples
+struct New1(i32, f64, String);
+struct New2(u32, String, f64);
+
+
 //Standard operators can be implemented with traits
 //anyone coming from an ML family language may appreciate
 use std::ops::Mul;
