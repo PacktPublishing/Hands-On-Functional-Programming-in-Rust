@@ -1,4 +1,8 @@
 
+void issue_override_code(int code) {
+   //C Code
+}
+
 int poll_override_code() {
    //C Code
    return 0;
@@ -9,7 +13,7 @@ int poll_override_input_floor() {
    return 0;
 }
 
-int poll_override_errors() {
+int poll_override_error() {
    //C Code
    return 0;
 }
@@ -23,12 +27,12 @@ void free_override_session(void* session) {
    //C Code
 }
 
-void* poll_physical_override_privileged() {
+void* poll_physical_override_privileged_session() {
    //C Code
    return 0;
 }
 
-void* poll_physical_override_admin() {
+void* poll_physical_override_admin_session() {
    //C Code
    return 0;
 }
