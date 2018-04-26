@@ -1,4 +1,4 @@
-use libc::c_int;
+use libc::{c_int, c_void};
 
 #[link(name = "poll_override_code")]
 extern {
@@ -15,15 +15,26 @@ extern {
    pub fn poll_override_errors() -> c_int;
 }
 
+#[link(name = "poll_override_session")]
+extern {
+   pub fn poll_override_session() -> *const c_void;
+}
+
+#[link(name = "free_override_session")]
+extern {
+   pub fn free_override_session(session: *const c_void);
+}
+
 #[link(name = "poll_physical_override_privileged")]
 extern {
-   pub fn poll_physical_override_privileged() -> c_int;
+   pub fn poll_physical_override_privileged() -> *const c_void;
 }
 
 #[link(name = "poll_physical_override_admin")]
 extern {
-   pub fn poll_physical_override_admin() -> c_int;
+   pub fn poll_physical_override_admin() -> *const c_void;
 }
+
 
 #[link(name = "override_manual_mode")]
 extern {

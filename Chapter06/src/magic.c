@@ -14,12 +14,21 @@ int poll_override_errors() {
    return 0;
 }
 
-int poll_physical_override_privileged() {
+void* poll_override_session() {
    //C Code
    return 0;
 }
 
-int poll_physical_override_admin() {
+void free_override_session(void* session) {
+   //C Code
+}
+
+void* poll_physical_override_privileged() {
+   //C Code
+   return 0;
+}
+
+void* poll_physical_override_admin() {
    //C Code
    return 0;
 }
