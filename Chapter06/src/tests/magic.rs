@@ -137,8 +137,8 @@ fn input_floor() {
       magic::override_reset_state();
       magic::issue_override_code(4);
       magic::issue_override_code(2);
-      assert!(magic::poll_override_code(), 4);
-      assert!(magic::poll_override_code(), 2);
+      assert!(magic::poll_override_code() == 4);
+      assert!(magic::poll_override_code() == 2);
    }
 }
 
@@ -147,7 +147,7 @@ fn manual_mode() {
    unsafe {
       magic::override_reset_state();
       magic::issue_override_code(5);
-      assert!(magic::poll_override_code(), 5);
+      assert!(magic::poll_override_code() == 5);
    }
 }
 
@@ -156,7 +156,7 @@ fn normal_mode() {
    unsafe {
       magic::override_reset_state();
       magic::issue_override_code(6);
-      assert!(magic::poll_override_code(), 6);
+      assert!(magic::poll_override_code() == 6);
    }
 }
 
@@ -165,8 +165,8 @@ fn flash() {
    unsafe {
       magic::override_reset_state();
       magic::elevator_display_flash(222);
-      assert!(magic::poll_override_code(), 7);
-      assert!(magic::poll_override_code(), 222);
+      assert!(magic::poll_override_code() == 7);
+      assert!(magic::poll_override_code() == 222);
    }
 }
 
@@ -175,13 +175,13 @@ fn toggle_light() {
    unsafe {
       magic::override_reset_state();
       magic::elevator_display_toggle_light(33);
-      assert!(magic::poll_override_code(), 8);
-      assert!(magic::poll_override_code(), 33);
-      assert!(magic::poll_override_code(), 1);
+      assert!(magic::poll_override_code() == 8);
+      assert!(magic::poll_override_code() == 33);
+      assert!(magic::poll_override_code() == 1);
       magic::elevator_display_toggle_light(33);
-      assert!(magic::poll_override_code(), 8);
-      assert!(magic::poll_override_code(), 33);
-      assert!(magic::poll_override_code(), 0);
+      assert!(magic::poll_override_code() == 8);
+      assert!(magic::poll_override_code() == 33);
+      assert!(magic::poll_override_code() == 0);
    }
 }
 
@@ -190,8 +190,36 @@ fn set_light_color() {
    unsafe {
       magic::override_reset_state();
       magic::elevator_display_set_light_color(33, 222);
-      assert!(magic::poll_override_code(), 9);
-      assert!(magic::poll_override_code(), 33);
-      assert!(magic::poll_override_code(), 222);
+      assert!(magic::poll_override_code() == 9);
+      assert!(magic::poll_override_code() == 33);
+      assert!(magic::poll_override_code() == 222);
+   }
+}
+
+#[test]
+fn deny_input_floor() {
+   unsafe {
+      magic::override_reset_state();
+      magic::issue_override_code(4);
+      magic::issue_override_code(2);
+      assert!(magic::poll_override_error() == 3);
+   }
+}
+
+#[test]
+fn deny_manual_mode() {
+   unsafe {
+      magic::override_reset_state();
+      magic::issue_override_code(5);
+      assert!(magic::poll_override_error() == 3);
+   }
+}
+
+#[test]
+fn deny_normal_mode() {
+   unsafe {
+      magic::override_reset_state();
+      magic::issue_override_code(6);
+      assert!(magic::poll_override_error() == 3);
    }
 }
