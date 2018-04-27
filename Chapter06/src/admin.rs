@@ -41,9 +41,17 @@ pub fn toErrorCode(i: i32) -> ErrorCode {
    }
 }
 
+#[derive(Clone)]
 pub struct AuthorizedSession
 {
    session: *const c_void
+}
+impl Drop for AuthorizedSession {
+   fn drop(&mut self) {
+      unsafe {
+         magic::free_override_session(self.session);
+      }
+   }
 }
 
 pub fn authorize_override() -> Result<AuthorizedSession,ErrorCode> {

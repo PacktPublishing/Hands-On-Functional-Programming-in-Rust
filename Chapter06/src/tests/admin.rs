@@ -7,7 +7,7 @@ fn authorize_override() {
       let session = admin::authorize_override().ok();
       assert!(admin::is_override());
    }
-   assert(!admin::is_override());
+   assert!(!admin::is_override());
    assert!(admin::check_error(()).is_ok());
 }
 #[test]
@@ -15,9 +15,9 @@ fn authorize_privileged() {
    admin::reset_state();
    {
       let session = admin::authorize_privileged().ok();
-      assert(admin::is_privileged());
+      assert!(admin::is_privileged());
    }
-   assert(!admin::is_privileged());
+   assert!(!admin::is_privileged());
    assert!(admin::check_error(()).is_ok());
 }
 #[test]
@@ -25,9 +25,9 @@ fn issue_admin_code() {
    admin::reset_state();
    {
       let session = admin::authorize_admin().ok();
-      assert(admin::is_admin());
+      assert!(admin::is_admin());
    }
-   assert(!admin::is_admin());
+   assert!(!admin::is_admin());
    assert!(admin::check_error(()).is_ok());
 }
 
