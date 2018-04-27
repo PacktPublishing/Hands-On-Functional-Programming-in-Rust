@@ -135,8 +135,7 @@ fn double_free_admin_failure() {
 fn input_floor() {
    unsafe {
       magic::override_reset_state();
-      magic::issue_override_code(4);
-      magic::issue_override_code(2);
+      magic::override_input_floor(2);
       assert!(magic::poll_override_code() == 4);
       assert!(magic::poll_override_code() == 2);
    }
@@ -200,8 +199,7 @@ fn set_light_color() {
 fn deny_input_floor() {
    unsafe {
       magic::override_reset_state();
-      magic::issue_override_code(4);
-      magic::issue_override_code(2);
+      magic::override_input_floor(2);
       assert!(magic::poll_override_error() == 3);
    }
 }

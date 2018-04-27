@@ -76,7 +76,7 @@ fn clone_privileged() {
    assert!(admin::check_error().is_ok());
 }
 #[test]
-fn double_free_admin_failure() {
+fn clone_admin() {
    admin::reset_state();
    {
       let session = admin::authorize_admin().ok().unwrap();

@@ -1,4 +1,16 @@
 
+int is_override() {
+   return 0;
+}
+
+int is_privileged() {
+   return 0;
+}
+
+int is_admin() {
+   return 0;
+}
+
 void issue_override_code(int code) {
    //C Code
 }
@@ -35,6 +47,9 @@ void* poll_physical_override_privileged_session() {
 void* poll_physical_override_admin_session() {
    //C Code
    return 0;
+}
+
+void override_input_floor(int floor) {
 }
 
 void override_manual_mode() {
