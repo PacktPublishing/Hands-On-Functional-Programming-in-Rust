@@ -1,4 +1,5 @@
 use magic;
+use libc::c_void;
 
 pub enum OverrideCode {
    IssueOverride = 1,
@@ -40,6 +41,44 @@ pub fn toErrorCode(i: i32) -> ErrorCode {
    }
 }
 
+pub struct AuthorizedSession
+{
+   session: *const c_void
+}
+
+pub fn authorize_override() -> Result<AuthorizedSession,ErrorCode> {
+   let session = unsafe {
+      magic::issue_override_code(OverrideCode::IssueOverride as i32);
+      magic::poll_override_session()
+   };
+   let session = AuthorizedSession {
+      session: session
+   };
+   check_error(session)
+}
+
+pub fn authorize_privileged() -> Result<AuthorizedSession,ErrorCode> {
+   let session = unsafe {
+      magic::issue_override_code(OverrideCode::IssuePrivileged as i32);
+      magic::poll_physical_override_privileged_session()
+   };
+   let session = AuthorizedSession {
+      session: session
+   };
+   check_error(session)
+}
+
+pub fn authorize_admin() -> Result<AuthorizedSession,ErrorCode> {
+   let session = unsafe {
+      magic::issue_override_code(OverrideCode::IssueAdmin as i32);
+      magic::poll_physical_override_admin_session()
+   };
+   let session = AuthorizedSession {
+      session: session
+   };
+   check_error(session)
+}
+
 pub fn reset_state()
 {
    unsafe {
@@ -47,13 +86,13 @@ pub fn reset_state()
    }
 }
 
-pub fn check_error() -> Result<(),ErrorCode>
+pub fn check_error<T>(t: T) -> Result<T,ErrorCode>
 {
    let err = unsafe {
       magic::poll_override_error()
    };
    if err==0 {
-      Result::Ok(())
+      Result::Ok(t)
    } else {
       Result::Err(toErrorCode(err))
    }
@@ -64,7 +103,7 @@ pub fn input_floor(floor: i32) -> Result<(),ErrorCode>
    unsafe {
       magic::override_input_floor(floor);
    }
-   check_error()
+   check_error(())
 }
 
 pub fn manual_mode() -> Result<(),ErrorCode>
@@ -72,7 +111,7 @@ pub fn manual_mode() -> Result<(),ErrorCode>
    unsafe {
       magic::override_manual_mode();
    }
-   check_error()
+   check_error(())
 }
 
 pub fn normal_mode() -> Result<(),ErrorCode>
@@ -80,7 +119,7 @@ pub fn normal_mode() -> Result<(),ErrorCode>
    unsafe {
       magic::override_normal_mode();
    }
-   check_error()
+   check_error(())
 }
 
 pub fn flash(pattern: i32) -> Result<(),ErrorCode>
@@ -88,21 +127,21 @@ pub fn flash(pattern: i32) -> Result<(),ErrorCode>
    unsafe {
       magic::elevator_display_flash(pattern);
    }
-   check_error()
+   check_error(())
 }
 pub fn toggle_light(light_id: i32) -> Result<(),ErrorCode>
 {
    unsafe {
       magic::elevator_display_toggle_light(light_id);
    }
-   check_error()
+   check_error(())
 }
 pub fn set_light_color(light_id: i32, color: i32) -> Result<(),ErrorCode>
 {
    unsafe {
       magic::elevator_display_set_light_color(light_id, color);
    }
-   check_error()
+   check_error(())
 }
 
 pub fn is_override() -> bool
@@ -126,15 +165,3 @@ pub fn is_admin() -> bool
    }
 }
 
-/*
-extern {
-   pub fn issue_override_code(code: c_int);
-   pub fn poll_override_code() -> c_int;
-   pub fn poll_override_input_floor() -> c_int;
-   pub fn poll_override_error() -> c_int;
-   pub fn poll_override_session() -> *const c_void;
-   pub fn free_override_session(session: *const c_void);
-   pub fn poll_physical_override_privileged_session() -> *const c_void;
-   pub fn poll_physical_override_admin_session() -> *const c_void;
-}
-*/
