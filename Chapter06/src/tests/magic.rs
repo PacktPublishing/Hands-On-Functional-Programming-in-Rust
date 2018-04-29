@@ -135,9 +135,11 @@ fn double_free_admin_failure() {
 fn input_floor() {
    unsafe {
       magic::override_reset_state();
+      magic::issue_override_code(3);
       magic::override_input_floor(2);
       assert!(magic::poll_override_code() == 4);
       assert!(magic::poll_override_code() == 2);
+      assert!(magic::poll_override_error() == 0);
    }
 }
 
@@ -145,8 +147,10 @@ fn input_floor() {
 fn manual_mode() {
    unsafe {
       magic::override_reset_state();
-      magic::issue_override_code(5);
+      magic::issue_override_code(3);
+      magic::override_manual_mode();
       assert!(magic::poll_override_code() == 5);
+      assert!(magic::poll_override_error() == 0);
    }
 }
 
@@ -154,8 +158,10 @@ fn manual_mode() {
 fn normal_mode() {
    unsafe {
       magic::override_reset_state();
-      magic::issue_override_code(6);
+      magic::issue_override_code(3);
+      magic::override_normal_mode();
       assert!(magic::poll_override_code() == 6);
+      assert!(magic::poll_override_error() == 0);
    }
 }
 
@@ -208,7 +214,7 @@ fn deny_input_floor() {
 fn deny_manual_mode() {
    unsafe {
       magic::override_reset_state();
-      magic::issue_override_code(5);
+      magic::override_manual_mode();
       assert!(magic::poll_override_error() == 3);
    }
 }
@@ -217,7 +223,7 @@ fn deny_manual_mode() {
 fn deny_normal_mode() {
    unsafe {
       magic::override_reset_state();
-      magic::issue_override_code(6);
+      magic::override_manual_mode();
       assert!(magic::poll_override_error() == 3);
    }
 }
