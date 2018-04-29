@@ -27,6 +27,7 @@ void issue_override_code(int code) {
          active_session = (void*)1;
          poll_session = (void*)1;
       } else {
+         active_session = (void*)4;
          poll_session = (void*)0;
          error_code = 1;
       }
@@ -35,6 +36,7 @@ void issue_override_code(int code) {
          active_session = (void*)2;
          poll_session = (void*)2;
       } else {
+         active_session = (void*)4;
          poll_session = (void*)0;
          error_code = 1;
       }
@@ -43,6 +45,7 @@ void issue_override_code(int code) {
          active_session = (void*)3;
          poll_session = (void*)3;
       } else {
+         active_session = (void*)4;
          poll_session = (void*)0;
          error_code = 1;
       }
