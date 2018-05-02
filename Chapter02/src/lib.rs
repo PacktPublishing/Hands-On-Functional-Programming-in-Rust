@@ -16,7 +16,7 @@ use termion::input::TermRead;
 use termion::event::Key;
 use std::cmp;
 
-fn variable_summary<W: Write>(stdout: &mut raw::RawTerminal<W>, vname: String, data: Vec<f64>) {
+fn variable_summary<W: Write>(stdout: &mut raw::RawTerminal<W>, vname: &str, data: Vec<f64>) {
    let (avg, dev) = variable_summary_stats(data);
    variable_summary_print(stdout, vname, avg, dev);
 }
@@ -25,8 +25,7 @@ fn variable_summary_stats(data: Vec<f64>) -> (f64, f64)
 {
    //calculate statistics
    let N = data.len();
-   let sum = data.clone().into_iter()
-            .fold(0.0, |a, b| a+b);
+   let sum: f64 = data.iter().sum();
    let avg = sum / (N as f64);
    let dev = (
        data.clone().into_iter()
@@ -37,7 +36,7 @@ fn variable_summary_stats(data: Vec<f64>) -> (f64, f64)
    (avg, dev)
 }
 
-fn variable_summary_print<W: Write>(stdout: &mut raw::RawTerminal<W>, vname: String, avg: f64, dev: f64)
+fn variable_summary_print<W: Write>(stdout: &mut raw::RawTerminal<W>, vname: &str, avg: f64, dev: f64)
 {
    //print formatted output
    write!(stdout, "Average of {:25}{:.6}\r\n", vname, avg);
@@ -63,21 +62,12 @@ pub fn run_simulation()
    let mut floor_requests: Vec<u64> = Vec::new();
 
    //4. Parse input and store as building description and floor requests
-   match env::args().nth(1) {
+   let buffer = match env::args().nth(1) {
       Some(ref fp) if *fp == "-".to_string()  => {
          let mut buffer = String::new();
          io::stdin().read_to_string(&mut buffer)
                     .expect("read_to_string failed");
-        
-         for (li,l) in buffer.lines().enumerate() {
-            if li==0 {
-               floor_count = l.parse::<u64>().unwrap();
-            } else if li==1 {
-               floor_height = l.parse::<f64>().unwrap();
-            } else {
-               floor_requests.push(l.parse::<u64>().unwrap());
-            }
-         }
+         buffer
       },
       None => {
          let fp = "test1.txt";
@@ -86,16 +76,7 @@ pub fn run_simulation()
               .expect("File::open failed")
               .read_to_string(&mut buffer)
               .expect("read_to_string failed");
-
-         for (li,l) in buffer.lines().enumerate() {
-            if li==0 {
-               floor_count = l.parse::<u64>().unwrap();
-            } else if li==1 {
-               floor_height = l.parse::<f64>().unwrap();
-            } else {
-               floor_requests.push(l.parse::<u64>().unwrap());
-            }
-         }
+         buffer
       },
       Some(fp) => {
          let mut buffer = String::new();
@@ -103,16 +84,17 @@ pub fn run_simulation()
               .expect("File::open failed")
               .read_to_string(&mut buffer)
               .expect("read_to_string failed");
-
-         for (li,l) in buffer.lines().enumerate() {
-            if li==0 {
-               floor_count = l.parse::<u64>().unwrap();
-            } else if li==1 {
-               floor_height = l.parse::<f64>().unwrap();
-            } else {
-               floor_requests.push(l.parse::<u64>().unwrap());
-            }
-         }
+         buffer
+      }
+   };
+        
+   for (li,l) in buffer.lines().enumerate() {
+      if li==0 {
+         floor_count = l.parse::<u64>().unwrap();
+      } else if li==1 {
+         floor_height = l.parse::<f64>().unwrap();
+      } else {
+         floor_requests.push(l.parse::<u64>().unwrap());
       }
    }
 
@@ -121,7 +103,8 @@ pub fn run_simulation()
    let termsize = termion::terminal_size().ok();
    let termwidth = termsize.map(|(w,_)| w-2).expect("termwidth") as u64;
    let termheight = termsize.map(|(_,h)| h-2).expect("termheight") as u64;
-   let mut stdout = io::stdout().into_raw_mode().unwrap();
+   let mut _stdout = io::stdout(); //lock once, instead of once per write
+   let mut stdout = _stdout.lock().into_raw_mode().unwrap();
    let mut record_location = Vec::new();
    let mut record_velocity = Vec::new();
    let mut record_acceleration = Vec::new();
@@ -175,7 +158,10 @@ pub fn run_simulation()
 
          //Do not exceed maximum velocity
          if velocity.abs() >= 5.0 {
-            if going_up==(velocity>0.0) {
+            //if we are going up and actually going up
+            //or we are going down and actually going down
+            if (going_up && velocity>0.0)
+            || (!going_up && velocity<0.0) {
                0.0
             //decelerate if going in wrong direction
             } else if going_up {
@@ -243,7 +229,7 @@ pub fn run_simulation()
             terminal_buffer[ sy*(termwidth as usize) + 6 + sx ] = sc as u8;
          }
       }
-      write!(stdout, "{}", String::from_utf8(terminal_buffer).ok().unwrap());
+      write!(stdout, "{}", String::from_utf8(terminal_buffer).unwrap());
       stdout.flush().unwrap();
 
       thread::sleep(time::Duration::from_millis(10));
@@ -251,10 +237,10 @@ pub fn run_simulation()
 
    //6 Calculate and print summary statistics
    write!(stdout, "{}{}{}", clear::All, cursor::Goto(1, 1), cursor::Show).unwrap();
-   variable_summary(&mut stdout, "location".to_string(), record_location);
-   variable_summary(&mut stdout, "velocity".to_string(), record_velocity);
-   variable_summary(&mut stdout, "acceleration".to_string(), record_acceleration);
-   variable_summary(&mut stdout, "voltage".to_string(), record_voltage);
+   variable_summary(&mut stdout, "location", record_location);
+   variable_summary(&mut stdout, "velocity", record_velocity);
+   variable_summary(&mut stdout, "acceleration", record_acceleration);
+   variable_summary(&mut stdout, "voltage", record_voltage);
    stdout.flush().unwrap();
 
 }
@@ -275,6 +261,9 @@ mod tests {
         for (data, avg, dev) in test_data
         {
            let (ravg, rdev) = variable_summary_stats(data);
+           //it is not safe to use direct == operator on floats
+           //floats can be *very* close and not equal
+           //so instead we check that they are very close in value
            assert!( (avg-ravg).abs() < 0.1 );
            assert!( (dev-rdev).abs() < 0.1 );
         }
