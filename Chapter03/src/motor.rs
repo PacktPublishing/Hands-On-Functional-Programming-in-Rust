@@ -26,16 +26,19 @@ impl MotorController for SimpleMotorController
       //at an average velocity of v/2 before stopping
       let d = t * (est.velocity/2.0);
 
+      let dst_height = (dst as f64) * self.esp.floor_height;
+
       //l = distance to next floor
-      let l = (est.location - (dst as f64)*self.esp.floor_height).abs();
+      let l = (est.location - dst_height).abs();
 
       let target_acceleration = {
          //are we going up?
-         let going_up = est.location < (dst as f64)*self.esp.floor_height;
+         let going_up = est.location < dst_height;
 
          //Do not exceed maximum velocity
          if est.velocity.abs() >= 5.0 {
-            if going_up==(est.velocity>0.0) {
+            if (going_up && est.velocity>0.0)
+            || (!going_up && est.velocity<0.0) {
                0.0
             //decelerate if going in wrong direction
             } else if going_up {
@@ -45,7 +48,8 @@ impl MotorController for SimpleMotorController
             }
 
          //if within comfortable deceleration range and moving in right direction, decelerate
-         } else if l < d && going_up==(est.velocity>0.0) {
+         } else if l < d && ((going_up && est.velocity>0.0)
+                             || (!going_up && est.velocity<0.0)) {
             if going_up {
                -1.0
             } else {
@@ -73,6 +77,10 @@ impl MotorController for SimpleMotorController
    }
 }
 
+const MAX_JERK: f64 = 0.2;
+const MAX_ACCELERATION: f64 = 2.0;
+const MAX_VELOCITY: f64 = 5.0;
+
 pub struct SmoothMotorController
 {
    pub esp: ElevatorSpecification,
@@ -90,10 +98,6 @@ impl MotorController for SmoothMotorController
    fn poll(&mut self, est: ElevatorState, dst: u64) -> MotorInput
    {
       //5.3. Adjust motor control to process next floor request
-
-      let MAX_JERK = 0.2;
-      let MAX_ACCELERATION = 2.0;
-      let MAX_VELOCITY = 5.0;
 
       //it will take t seconds to reach max from max
       let t_accel = MAX_ACCELERATION / MAX_JERK;

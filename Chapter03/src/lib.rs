@@ -157,21 +157,12 @@ pub fn run_simulation()
    let mut floor_requests = Vec::new();
 
    //4. Parse input and store as building description and floor requests
-   match env::args().nth(1) {
+   let buffer = match env::args().nth(1) {
       Some(ref fp) if *fp == "-".to_string()  => {
          let mut buffer = String::new();
          io::stdin().read_to_string(&mut buffer)
                     .expect("read_to_string failed");
-        
-         for (li,l) in buffer.lines().enumerate() {
-            if li==0 {
-               esp.floor_count = l.parse::<u64>().unwrap();
-            } else if li==1 {
-               esp.floor_height = l.parse::<f64>().unwrap();
-            } else {
-               floor_requests.push(l.parse::<u64>().unwrap());
-            }
-         }
+         buffer
       },
       None => {
          let fp = "test1.txt";
@@ -180,16 +171,7 @@ pub fn run_simulation()
               .expect("File::open failed")
               .read_to_string(&mut buffer)
               .expect("read_to_string failed");
-
-         for (li,l) in buffer.lines().enumerate() {
-            if li==0 {
-               esp.floor_count = l.parse::<u64>().unwrap();
-            } else if li==1 {
-               esp.floor_height = l.parse::<f64>().unwrap();
-            } else {
-               floor_requests.push(l.parse::<u64>().unwrap());
-            }
-         }
+         buffer
       },
       Some(fp) => {
          let mut buffer = String::new();
@@ -197,16 +179,17 @@ pub fn run_simulation()
               .expect("File::open failed")
               .read_to_string(&mut buffer)
               .expect("read_to_string failed");
+         buffer
+      }
+   };
 
-         for (li,l) in buffer.lines().enumerate() {
-            if li==0 {
-               esp.floor_count = l.parse::<u64>().unwrap();
-            } else if li==1 {
-               esp.floor_height = l.parse::<f64>().unwrap();
-            } else {
-               floor_requests.push(l.parse::<u64>().unwrap());
-            }
-         }
+   for (li,l) in buffer.lines().enumerate() {
+      if li==0 {
+         esp.floor_count = l.parse::<u64>().unwrap();
+      } else if li==1 {
+         esp.floor_height = l.parse::<f64>().unwrap();
+      } else {
+         floor_requests.push(l.parse::<u64>().unwrap());
       }
    }
 
