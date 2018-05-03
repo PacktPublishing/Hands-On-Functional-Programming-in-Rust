@@ -40,6 +40,7 @@ pub trait DataRecorder
 {
    fn init(&mut self, esp: ElevatorSpecification, est: ElevatorState);
    fn poll(&mut self, est: ElevatorState, dst: u64);
+   fn summary(&mut self);
 }
 
 pub trait MotorForce {

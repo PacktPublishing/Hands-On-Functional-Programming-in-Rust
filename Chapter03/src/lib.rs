@@ -67,7 +67,7 @@ impl<'a, W: Write> DataRecorder for SimpleDataRecorder<'a, W>
    fn init(&mut self, esp: ElevatorSpecification, est: ElevatorState)
    {
       self.esp = esp.clone();
-      self.log.write_all(serde_json::to_string(&esp.clone()).unwrap().as_bytes()).expect("write spec to log");
+      self.log.write_all(serde_json::to_string(&esp).unwrap().as_bytes()).expect("write spec to log");
       self.log.write_all(b"\r\n").expect("write spec to log");
    }
    fn poll(&mut self, est: ElevatorState, dst: u64)
@@ -114,12 +114,6 @@ impl<'a, W: Write> DataRecorder for SimpleDataRecorder<'a, W>
       write!(self.stdout, "{}", String::from_utf8(terminal_buffer).ok().unwrap());
       self.stdout.flush().unwrap();
    }
-}
-
-trait DataRecorderSummary {
-   fn summary(&mut self);
-}
-impl<'a, W: Write> DataRecorderSummary for SimpleDataRecorder<'a, W> {
    fn summary(&mut self)
    {
       //6 Calculate and print summary statistics
