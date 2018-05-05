@@ -1,0 +1,21 @@
+[package]
+name = "Chapter7"
+version = "1.0.0"
+
+[dependencies]
+
+[[bin]]
+name = "functor_pattern"
+path = "functor_pattern.rs"
+
+[[bin]]
+name = "monad_pattern"
+path = "monad_pattern.rs"
+
+[[bin]]
+name = "combinator_pattern"
+path = "combinator_pattern.rs"
+
+[[bin]]
+name = "lazy_pattern"
+path = "lazy_pattern.rs"
