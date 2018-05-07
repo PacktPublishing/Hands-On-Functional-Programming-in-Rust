@@ -1,4 +1,31 @@
 use std::fmt::{Debug};
+use std::io::prelude::*;
+use std::net::TcpListener;
+use std::net::TcpStream;
+use std::thread;
+
+struct ServerMonad<St> {
+  state: St,
+  handle: Box<Fn(&mut St,String) -> bool>
+}
+impl<St: Clone> ServerMonad<St> {
+   fn _return(&self, st: St) -> ServerMonad<St> {
+      ServerMonad {
+        state: st,
+        handle: Box::new(|st: &mut St, s| false)
+      }
+   }
+   fn listen(&self, address: &str) {
+      let listener = TcpListener::bind(address).unwrap();
+
+      for stream in listener.incoming() {
+         let mut st = self.state.clone();
+         let mut buffer = String::new();
+         stream.unwrap().read_to_string(&mut buffer);
+         (self.handle)(&mut st,buffer);
+      }
+   }
+}
 
 struct LogMonad<T>(T);
 impl<T> LogMonad<T> {
