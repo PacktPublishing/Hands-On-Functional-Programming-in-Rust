@@ -6,24 +6,35 @@ use std::thread;
 
 struct ServerMonad<St> {
   state: St,
-  handle: Box<Fn(&mut St,String) -> bool>
+  handlers: Vec<Box<Fn(&mut St,&String) -> Option<String>>>
 }
 impl<St: Clone> ServerMonad<St> {
-   fn _return(&self, st: St) -> ServerMonad<St> {
+   fn _return(st: St) -> ServerMonad<St> {
       ServerMonad {
         state: st,
-        handle: Box::new(|st: &mut St, s| false)
+        handlers: Vec::new()
       }
    }
-   fn listen(&self, address: &str) {
+   fn listen(&mut self, address: &str) {
       let listener = TcpListener::bind(address).unwrap();
-
       for stream in listener.incoming() {
          let mut st = self.state.clone();
-         let mut buffer = String::new();
-         stream.unwrap().read_to_string(&mut buffer);
-         (self.handle)(&mut st,buffer);
+         let mut buffer = [0; 2048];
+         let mut tcp = stream.unwrap();
+         tcp.read(&mut buffer);
+         let buffer = String::from_utf8_lossy(&buffer).into_owned();
+         for h in self.handlers.iter() {
+            if let Some(response) = h(&mut st,&buffer) { 
+               tcp.write(response.as_bytes());
+               break
+            }
+         }
       }
+   }
+   fn bind_handler<F>(mut self, f: F) -> Self
+      where F: 'static + Fn(&mut St,&String) -> Option<String> {
+      self.handlers.push(Box::new(f));
+      self
    }
 }
 
@@ -84,5 +95,12 @@ fn main()
                           .bind(|z| format!("{}{}", z, z));
 
    let nowdoit = notyet.apply(222);
-   println!("nowdoit {}", nowdoit)
+   println!("nowdoit {}", nowdoit);
+
+   ServerMonad::_return(())
+               .bind_handler(|&mut st, ref msg| if msg.len()%2 == 0 { Some("divisible by 2".to_string()) } else { None })
+               .bind_handler(|&mut st, ref msg| if msg.len()%3 == 0 { Some("divisible by 3".to_string()) } else { None })
+               .bind_handler(|&mut st, ref msg| if msg.len()%5 == 0 { Some("divisible by 5".to_string()) } else { None })
+               .bind_handler(|&mut st, ref msg| if msg.len()%7 == 0 { Some("divisible by 7".to_string()) } else { None })
+               .listen("127.0.0.1:8888");
 }
