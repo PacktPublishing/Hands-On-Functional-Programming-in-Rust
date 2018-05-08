@@ -76,6 +76,14 @@ fn parse<St: Clone,A,P>(p: &P, st: &ParseState<St>) -> ParseOutput<A>
    }
 }
 
+fn parse_mzero<St: Clone,A>(st: ParseState<St>) -> ParseRCon<ParseState<St>,A> {
+   ParseRCon(st,Err("mzero failed".to_string()))
+}
+
+fn parse_return<St: Clone,A: Clone>(a: A) -> impl (Fn(ParseState<St>) -> ParseRCon<ParseState<St>,A>) {
+   move |st| { ParseRCon(st,Ok(Some(a.clone()))) }
+}
+
 fn parse_token<St: Clone,A,T>(t: T) -> impl (Fn(ParseState<St>) -> ParseRCon<ParseState<St>,A>)
    where T: 'static + Fn(char) -> Option<A> {
    move |st: ParseState<St>| {
@@ -90,10 +98,6 @@ fn parse_token<St: Clone,A,T>(t: T) -> impl (Fn(ParseState<St>) -> ParseRCon<Par
 fn parse_satisfy<St: Clone,T>(t: T) -> impl (Fn(ParseState<St>) -> ParseRCon<ParseState<St>,char>)
    where T: 'static + Fn(char) -> bool {
    parse_token(move |c| if t(c) {Some(c)} else {None})
-}
-
-fn parse_return<St: Clone,A: Clone>(a: A) -> impl (Fn(ParseState<St>) -> ParseRCon<ParseState<St>,A>) {
-   move |st| { ParseRCon(st,Ok(Some(a.clone()))) }
 }
 
 fn parse_bind<St: Clone,A,B,P1,P2,B1>(p1: P1, b1: B1)
@@ -135,11 +139,6 @@ fn parse_or<St: Clone,A,P1,P2>(p1: P1, p2: P2)
    }
 }
 
-fn mzero<St: Clone,A>(st: ParseState<St>) -> ParseRCon<ParseState<St>,A> {
-   ParseRCon(st,Err("mzero failed".to_string()))
-}
-
-
 fn compose<A,B,C,F,G>(f: F, g: G) -> impl Fn(A) -> C
    where F: 'static + Fn(A) -> B,
          G: 'static + Fn(B) -> C {
@@ -165,7 +164,7 @@ fn main()
    let input1 = ParseState::new((), "1 + 2 * 3".to_string());
    let input2 = ParseState::new((), "3 / 2 - 1".to_string());
 
-   let p1 = mzero::<(),()>;
+   let p1 = parse_mzero::<(),()>;
    println!("p1 input1: {:?}", parse(&p1,&input1));
    println!("p1 input2: {:?}", parse(&p1,&input2));
 
