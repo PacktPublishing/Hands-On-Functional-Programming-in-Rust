@@ -3,6 +3,7 @@ name = "Chapter7"
 version = "1.0.0"
 
 [dependencies]
+chomp = "0.3.1"
 
 [[bin]]
 name = "functor_pattern"
