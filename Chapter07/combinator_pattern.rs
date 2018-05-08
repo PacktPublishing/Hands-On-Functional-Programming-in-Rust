@@ -22,19 +22,26 @@ fn name<I: U8Input>(i: I) -> SimpleResult<I, Name<I::Buffer>> {
 }
 
 
-trait ParseState<A> {
-   fn next(&self) -> (Box<ParseState<A>>,Option<char>);
+#[derive(Clone)]
+struct ParseState<A: Clone> {
+   a: A
 }
+impl<A: Clone> ParseState<A> {
+   fn next(self) -> (ParseState<A>,Option<char>) {
+      (self.clone(),None)
+   }
+}
+
 struct ParseRCon<A,B>(A,Result<Option<B>,String>);
 enum ParseOutput<A> {
    Success(A),
    Failure(String)
 }
 
-fn parse_token<St,A,T>(t: T) -> impl (Fn(Box<ParseState<St>>) -> ParseRCon<Box<ParseState<St>>,A>)
+fn parse_token<St: Clone,A,T>(t: T) -> impl (Fn(ParseState<St>) -> ParseRCon<ParseState<St>,A>)
    where T: 'static + Fn(char) -> Option<A> {
-   move |st: Box<ParseState<St>>| {
-      let (next_state,next_char) = st.next();
+   move |st: ParseState<St>| {
+      let (next_state,next_char) = st.clone().next();
       match next_char {
          Some(c) => ParseRCon(next_state,Ok(t(c))),
          None => ParseRCon(st,Err("end of input".to_string()))
@@ -42,19 +49,19 @@ fn parse_token<St,A,T>(t: T) -> impl (Fn(Box<ParseState<St>>) -> ParseRCon<Box<P
    }
 }
 
-fn parse_satisfy<St,T>(t: T) -> impl (Fn(Box<ParseState<St>>) -> ParseRCon<Box<ParseState<St>>,char>)
+fn parse_satisfy<St: Clone,T>(t: T) -> impl (Fn(ParseState<St>) -> ParseRCon<ParseState<St>,char>)
    where T: 'static + Fn(char) -> bool {
    parse_token(move |c| if t(c) {Some(c)} else {None})
 }
 
-fn parse_return<St,A: Clone>(a: A) -> impl (Fn(Box<ParseState<St>>) -> ParseRCon<Box<ParseState<St>>,A>) {
+fn parse_return<St: Clone,A: Clone>(a: A) -> impl (Fn(ParseState<St>) -> ParseRCon<ParseState<St>,A>) {
    move |st| { ParseRCon(st,Ok(Some(a.clone()))) }
 }
 
-fn parse_bind<St,A,B,P1,P2,B1>(p1: P1, b1: B1)
-   -> impl Fn(Box<ParseState<St>>) -> ParseRCon<Box<ParseState<St>>,B>
-   where P1: Fn(Box<ParseState<St>>) -> ParseRCon<Box<ParseState<St>>,A>,
-         P2: Fn(Box<ParseState<St>>) -> ParseRCon<Box<ParseState<St>>,B>,
+fn parse_bind<St: Clone,A,B,P1,P2,B1>(p1: P1, b1: B1)
+   -> impl Fn(ParseState<St>) -> ParseRCon<ParseState<St>,B>
+   where P1: Fn(ParseState<St>) -> ParseRCon<ParseState<St>,A>,
+         P2: Fn(ParseState<St>) -> ParseRCon<ParseState<St>,B>,
          B1: Fn(A) -> P2 {
    move |st| {
       match p1(st) {
@@ -65,22 +72,35 @@ fn parse_bind<St,A,B,P1,P2,B1>(p1: P1, b1: B1)
    }
 }
 
-fn mzero<St,A>(st: Box<ParseState<St>>) -> ParseRCon<Box<ParseState<St>>,A> {
-   ParseRCon(st,Err("mzero".to_string()))
+fn parse_sequence<St: Clone,A,B,P1,P2>(p1: P1, p2: P2)
+   -> impl Fn(ParseState<St>) -> ParseRCon<ParseState<St>,B>
+   where P1: Fn(ParseState<St>) -> ParseRCon<ParseState<St>,A>,
+         P2: Fn(ParseState<St>) -> ParseRCon<ParseState<St>,B> {
+   move |st| {
+      match p1(st) {
+         ParseRCon(nst,Ok(_)) => p2(nst),
+         ParseRCon(nst,Err(err)) => ParseRCon(nst,Err(err))
+      }
+   }
 }
 
-/*
-TODO
-  val mplus  : ('st, 'a) parser -> ('st, 'a) parser -> 
-               ('st, 'a) parser
-  val (>>)   : ('st, 'a) parser -> ('st, 'b) parser ->
-               ('st, 'b) parser
+fn parse_or<St: Clone,A,P1,P2>(p1: P1, p2: P2)
+   -> impl Fn(ParseState<St>) -> ParseRCon<ParseState<St>,A>
+   where P1: Fn(ParseState<St>) -> ParseRCon<ParseState<St>,A>,
+         P2: Fn(ParseState<St>) -> ParseRCon<ParseState<St>,A> {
+   move |st| {
+      match p1(st.clone()) {
+         ParseRCon(nst,Ok(Some(a))) => ParseRCon(nst,Ok(Some(a))),
+         ParseRCon(_,Ok(None)) => p2(st),
+         ParseRCon(nst,Err(err)) => ParseRCon(nst,Err(err))
+      }
+   }
+}
 
-  val chars  : char list -> ('st,char list) char_parser
-  many
-  sepBy
-  <|>
-*/
+fn mzero<St: Clone,A>(st: ParseState<St>) -> ParseRCon<ParseState<St>,A> {
+   ParseRCon(st,Err("mzero failed".to_string()))
+}
+
 
 fn compose<A,B,C,F,G>(f: F, g: G) -> impl Fn(A) -> C
    where F: 'static + Fn(A) -> B,
