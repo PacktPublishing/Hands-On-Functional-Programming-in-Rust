@@ -23,7 +23,6 @@ fn name<I: U8Input>(i: I) -> SimpleResult<I, Name<I::Buffer>> {
 }
 
 
-
 #[derive(Clone)]
 struct ParseState<A: Clone> {
    buffer: Arc<Mutex<Vec<char>>>,
@@ -31,11 +30,19 @@ struct ParseState<A: Clone> {
    a: A
 }
 impl<A: Clone> ParseState<A> {
+   fn new(a: A, buffer: String) -> ParseState<A> {
+      let buffer: Vec<char> = buffer.chars().collect();
+      ParseState {
+         buffer: Arc::new(Mutex::new(buffer)),
+         index: 0,
+         a: a
+      }
+   }
    fn next(&self) -> (ParseState<A>,Option<char>) {
       let buf = self.buffer.lock().unwrap();
       if self.index < buf.len() {
+         let new_char = buf[self.index];
          let new_index = self.index + 1;
-         let new_char = buf[new_index];
          (ParseState {
             buffer: Arc::clone(&self.buffer),
             index: new_index,
@@ -51,16 +58,28 @@ impl<A: Clone> ParseState<A> {
    }
 }
 
+#[derive(Debug)]
 struct ParseRCon<A,B>(A,Result<Option<B>,String>);
+
+#[derive(Debug)]
 enum ParseOutput<A> {
    Success(A),
    Failure(String)
 }
 
+fn parse<St: Clone,A,P>(p: &P, st: &ParseState<St>) -> ParseOutput<A>
+   where P: Fn(ParseState<St>) -> ParseRCon<ParseState<St>,A> {
+   match p(st.clone()) {
+      ParseRCon(_,Ok(Some(a))) => ParseOutput::Success(a),
+      ParseRCon(_,Ok(None)) => ParseOutput::Failure("expected input".to_string()),
+      ParseRCon(_,Err(err)) => ParseOutput::Failure(err)
+   }
+}
+
 fn parse_token<St: Clone,A,T>(t: T) -> impl (Fn(ParseState<St>) -> ParseRCon<ParseState<St>,A>)
    where T: 'static + Fn(char) -> Option<A> {
    move |st: ParseState<St>| {
-      let (next_state,next_char) = st.clone().next();
+      let (next_state,next_char) = st.clone().next(); 
       match next_char {
          Some(c) => ParseRCon(next_state,Ok(t(c))),
          None => ParseRCon(st,Err("end of input".to_string()))
@@ -142,4 +161,36 @@ fn main()
    println!("first:{} last:{}",
             String::from_utf8_lossy(parse_result.first),
             String::from_utf8_lossy(parse_result.last));
+
+   let input1 = ParseState::new((), "1 + 2 * 3".to_string());
+   let input2 = ParseState::new((), "3 / 2 - 1".to_string());
+
+   let p1 = mzero::<(),()>;
+   println!("p1 input1: {:?}", parse(&p1,&input1));
+   println!("p1 input2: {:?}", parse(&p1,&input2));
+
+   let p2 = parse_return(123);
+   println!("p2 input1: {:?}", parse(&p2,&input1));
+   println!("p2 input2: {:?}", parse(&p2,&input2));
+
+   let p3 = parse_satisfy(|c| c=='1');
+   println!("p3 input1: {:?}", parse(&p3,&input1));
+   println!("p3 input2: {:?}", parse(&p3,&input2));
+
+   let digit = parse_satisfy(|c| c.is_digit(10));
+   println!("digit input1: {:?}", parse(&digit,&input1));
+   println!("digit input2: {:?}", parse(&digit,&input2));
+
+   let space = parse_satisfy(|c| c==' ');
+   println!("space input1: {:?}", parse(&space,&input1));
+   println!("space input2: {:?}", parse(&space,&input2));
+
+   let operator = parse_satisfy(|c| c=='+' || c=='-' || c=='*' || c=='/');
+   println!("operator input1: {:?}", parse(&operator,&input1));
+   println!("operator input2: {:?}", parse(&operator,&input2));
+
+   let ps1 = parse_sequence(digit,space);
+   let ps2 = parse_sequence(ps1,operator);
+   println!("digit,space,operator input1: {:?}", parse(&ps2,&input1));
+   println!("digit,space,operator input2: {:?}", parse(&ps2,&input2));
 }
