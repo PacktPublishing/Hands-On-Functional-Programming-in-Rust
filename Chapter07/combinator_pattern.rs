@@ -47,12 +47,30 @@ fn parse_satisfy<St,T>(t: T) -> impl (Fn(Box<ParseState<St>>) -> ParseRCon<Box<P
    parse_token(move |c| if t(c) {Some(c)} else {None})
 }
 
+fn parse_return<St,A: Clone>(a: A) -> impl (Fn(Box<ParseState<St>>) -> ParseRCon<Box<ParseState<St>>,A>) {
+   move |st| { ParseRCon(st,Ok(Some(a.clone()))) }
+}
+
+fn parse_bind<St,A,B,P1,P2,B1>(p1: P1, b1: B1)
+   -> impl Fn(Box<ParseState<St>>) -> ParseRCon<Box<ParseState<St>>,B>
+   where P1: Fn(Box<ParseState<St>>) -> ParseRCon<Box<ParseState<St>>,A>,
+         P2: Fn(Box<ParseState<St>>) -> ParseRCon<Box<ParseState<St>>,B>,
+         B1: Fn(A) -> P2 {
+   move |st| {
+      match p1(st) {
+         ParseRCon(nst,Ok(Some(a))) => b1(a)(nst),
+         ParseRCon(nst,Ok(None)) => ParseRCon(nst,Err("bind failed".to_string())),
+         ParseRCon(nst,Err(err)) => ParseRCon(nst,Err(err))
+      }
+   }
+}
+
+fn mzero<St,A>(st: Box<ParseState<St>>) -> ParseRCon<Box<ParseState<St>>,A> {
+   ParseRCon(st,Err("mzero".to_string()))
+}
+
 /*
 TODO
-  val return : 'a -> ('st, 'a) parser      
-  val (>>=)  : ('st, 'a) parser -> ('a -> ('st, 'b) parser) -> 
-               ('st, 'b) parser
-  val mzero  : ('st, 'a) parser
   val mplus  : ('st, 'a) parser -> ('st, 'a) parser -> 
                ('st, 'a) parser
   val (>>)   : ('st, 'a) parser -> ('st, 'b) parser ->
