@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate chomp;
 use chomp::prelude::*;
+use std::sync::{Arc,Mutex};
 
 #[derive(Debug, Eq, PartialEq)]
 struct Name<B: Buffer> {
@@ -22,13 +23,31 @@ fn name<I: U8Input>(i: I) -> SimpleResult<I, Name<I::Buffer>> {
 }
 
 
+
 #[derive(Clone)]
 struct ParseState<A: Clone> {
+   buffer: Arc<Mutex<Vec<char>>>,
+   index: usize,
    a: A
 }
 impl<A: Clone> ParseState<A> {
-   fn next(self) -> (ParseState<A>,Option<char>) {
-      (self.clone(),None)
+   fn next(&self) -> (ParseState<A>,Option<char>) {
+      let buf = self.buffer.lock().unwrap();
+      if self.index < buf.len() {
+         let new_index = self.index + 1;
+         let new_char = buf[new_index];
+         (ParseState {
+            buffer: Arc::clone(&self.buffer),
+            index: new_index,
+            a: self.a.clone()
+         }, Some(new_char))
+      } else {
+         (ParseState {
+            buffer: Arc::clone(&self.buffer),
+            index: self.index,
+            a: self.a.clone()
+         },None)
+      }
    }
 }
 
