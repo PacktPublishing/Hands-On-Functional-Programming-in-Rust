@@ -107,4 +107,148 @@ fn main()
    let e3 = |i| { println!("after {}", i); i };
    let s = effects_bind(effects_bind(e1,e2),e3);
    s(22);
+
+   println!("\nrender 1:");
+   let render1 = ReactiveUnit::new((),|(),()| {
+      let html = r###"$('body').innerHTML = '
+        <header>
+          <h3 data-section="1" class="active">Section 1</h3>
+          <h3 data-section="2">Section 2</h3>
+          <h3 data-section="3">Section 3</h3>
+        </header>
+        <div>page content</div>
+        <footer>Copyright</footer>
+      ';"###;
+      html.to_string()
+   });
+   println!("{}", render1.apply(()));
+
+   println!("\nrender 2:");
+   let render2 = ReactiveUnit::new((),|(),section: usize| {
+      let section_1 = r###"$('body').innerHTML = '
+        <header>
+          <h3 data-section="1" class="active">Section 1</h3>
+          <h3 data-section="2">Section 2</h3>
+          <h3 data-section="3">Section 3</h3>
+        </header>
+        <div>section 1 content</div>
+        <footer>Copyright</footer>
+      ';"###;
+
+      let section_2 = r###"$('body').innerHTML = '
+        <header>
+          <h3 data-section="1">Section 1</h3>
+          <h3 data-section="2" class="active">Section 2</h3>
+          <h3 data-section="3">Section 3</h3>
+        </header>
+        <div>section 2 content</div>
+        <footer>Copyright</footer>
+      ';"###;
+
+      let section_3 = r###"$('body').innerHTML = '
+        <header>
+          <h3 data-section="1">Section 1</h3>
+          <h3 data-section="2">Section 2</h3>
+          <h3 data-section="3" class="active">Section 3</h3>
+        </header>
+        <div>section 3 content</div>
+        <footer>Copyright</footer>
+      ';"###;
+
+      if section==1 {
+         section_1.to_string()
+      } else if section==2 {
+         section_2.to_string()
+      } else if section==3 {
+         section_3.to_string()
+      } else {
+         panic!("unknown section")
+      }
+   });
+   println!("{}", render2.apply(1));
+   println!("{}", render2.apply(2));
+   println!("{}", render2.apply(3));
+
+   let render3header = ReactiveUnit::new(None,|opsec: &mut Option<usize>,section: usize| {
+      let section_1 = r###"$('header').innerHTML = '
+         <h3 data-section="1" class="active">Section 1</h3>
+         <h3 data-section="2">Section 2</h3>
+         <h3 data-section="3">Section 3</h3>
+      ';"###;
+      let section_2 = r###"$('header').innerHTML = '
+         <h3 data-section="1">Section 1</h3>
+         <h3 data-section="2" class="active">Section 2</h3>
+         <h3 data-section="3">Section 3</h3>
+      ';"###;
+      let section_3 = r###"$('header').innerHTML = '
+         <h3 data-section="1">Section 1</h3>
+         <h3 data-section="2">Section 2</h3>
+         <h3 data-section="3" class="active">Section 3</h3>
+      ';"###;
+
+      let changed = if section==1 {
+         section_1
+      } else if section==2 {
+         section_2
+      } else if section==3 {
+         section_3
+      } else {
+         panic!("invalid section")
+      };
+
+      if let Some(sec) = *opsec {
+         if sec==section { "" }
+         else {
+           *opsec = Some(section);
+           changed
+         }
+      } else {
+         *opsec = Some(section);
+         changed
+      }
+   });
+
+   let render3content = ReactiveUnit::new(None,|opsec: &mut Option<usize>,section: usize| {
+      let section_1 = r###"$('div#content').innerHTML = '
+         section 1 content
+      ';"###;
+      let section_2 = r###"$('div#content').innerHTML = '
+         section 2 content
+      ';"###;
+      let section_3 = r###"$('div#content').innerHTML = '
+         section 3 content
+      ';"###;
+
+      let changed = if section==1 {
+         section_1
+      } else if section==2 {
+         section_2
+      } else if section==3 {
+         section_3
+      } else {
+         panic!("invalid section")
+      };
+
+      if let Some(sec) = *opsec {
+         if sec==section { "" }
+         else {
+           *opsec = Some(section);
+           changed
+         }
+      } else {
+         *opsec = Some(section);
+         changed
+      }
+   });
+
+   let render3 = ReactiveUnit::new((render3header,render3content), |(rheader,rcontent),section: usize| {
+      let header = rheader.apply(section);
+      let content = rcontent.apply(section);
+      format!("{}{}", header, content)
+   });
+   
+   println!("section 1: {}", render3.apply(1));
+   println!("section 2: {}", render3.apply(2));
+   println!("section 2: {}", render3.apply(2));
+   println!("section 3: {}", render3.apply(3));
 }
