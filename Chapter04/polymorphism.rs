@@ -60,5 +60,5 @@ fn main()
    bar(foo,1);
 
    baz(|x| x, 1);
-   baz(|x| foo(x), 1);
+   baz(foo, 1);
 }
