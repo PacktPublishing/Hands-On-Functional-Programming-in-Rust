@@ -246,9 +246,27 @@ fn main()
       let content = rcontent.apply(section);
       format!("{}{}", header, content)
    });
-   
+
    println!("section 1: {}", render3.apply(1));
    println!("section 2: {}", render3.apply(2));
    println!("section 2: {}", render3.apply(2));
    println!("section 3: {}", render3.apply(3));
+
+   let database = ("hello world", 5, 2);
+   let react1 = ReactiveUnit::new((database,render3), |(database,render),evt:(&str,&str)| {
+      match evt {
+         ("header button click",n) => render.apply(n.parse::<usize>().unwrap()),
+         ("text submission",s) => { database.0 = s; format!("db.textfield1.set(\"{}\")",s) },
+         ("number 1 submission",n) => { database.1 += n.parse::<i32>().unwrap(); format!("db.numfield1.set(\"{}\")",database.1) },
+         ("number 2 submission",n) => { database.2 += n.parse::<i32>().unwrap(); format!("db.numfield2.set(\"{}\")",database.2) },
+         _ => "".to_string()
+      }
+   });
+   println!("react 1: {}", react1.apply(("header button click","2")));
+   println!("react 1: {}", react1.apply(("header button click","2")));
+   println!("react 1: {}", react1.apply(("text submission","abc def")));
+   println!("react 1: {}", react1.apply(("number 1 submission","123")));
+   println!("react 1: {}", react1.apply(("number 1 submission","234")));
+   println!("react 1: {}", react1.apply(("number 2 submission","333")));
+   println!("react 1: {}", react1.apply(("number 2 submission","222")));
 }
