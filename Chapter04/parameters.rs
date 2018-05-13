@@ -56,4 +56,7 @@ fn main()
 
    <Baz as Foo>::f(&b);
    <Baz as Bar>::f(&b);
+
+   f::<Foo>(&b);
+   f::<Bar>(&b);
 }

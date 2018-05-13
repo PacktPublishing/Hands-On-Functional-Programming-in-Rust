@@ -1,5 +1,5 @@
 
-type JSJIT = u64;
+struct JSJIT(u64);
 
 enum JSJITorExpr {
    Jit { label: JSJIT },
@@ -18,7 +18,7 @@ fn jump(l: JSJIT) -> JSJITorExpr
    //jump to compiled code
    //this depends on implementation
    //so we will just leave this as a stub
-   JSJITorExpr::Jit { label: 0 }
+   JSJITorExpr::Jit { label: JSJIT(0) }
 }
 fn eval(e: JSJITorExpr) -> JSJITorExpr
 {
@@ -36,14 +36,14 @@ fn eval(e: JSJITorExpr) -> JSJITorExpr
                let r = eval(*r);
                //call add op codes for possible l,r representations
                //should return wrapped value from above
-               JSJITorExpr::Jit { label: 0 }
+               JSJITorExpr::Jit { label: JSJIT(0) }
             }
             JSExpr::OperatorMul { lexpr: l, rexpr: r } => {
                let l = eval(*l);
                let r = eval(*r);
                //call mul op codes for possible l,r representations
                //should return wrapped value from above
-               JSJITorExpr::Jit { label: 0 }
+               JSJITorExpr::Jit { label: JSJIT(0) }
             }
          }
       }
