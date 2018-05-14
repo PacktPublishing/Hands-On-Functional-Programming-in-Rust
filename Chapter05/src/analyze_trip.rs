@@ -25,49 +25,45 @@ fn main()
 {
    let simlog = File::open("simulation.log").expect("read simulation log");
    let mut simlog = BufReader::new(&simlog);
-   let mut esp: Option<Box<Building>> = None;
    let mut jerk = 0.0;
    let mut prev_est: Option<ElevatorState> = None;
    let mut dst_timing: Vec<Trip> = Vec::new();
    let mut start_location = 0.0;
+
+   let mut first_line = String::new();
+   let len = simlog.read_line(&mut first_line).unwrap();
+   let spec: u64 = serde_json::from_str(&first_line).unwrap();
+   let esp: Box<Building> = buildings::deserialize(spec);
    for line in simlog.lines() {
       let l = line.unwrap();
-      match esp {
-         None => {
-            let spec: u64 = serde_json::from_str(&l).unwrap();
-            esp = Some(buildings::deserialize(spec));
-         },
-         Some(ref esp) => {
-            let (est, dst): (ElevatorState,u64) = serde_json::from_str(&l).unwrap();
-            let dl = dst_timing.len();
-            if dst_timing.len()==0 || dst_timing[dl-1].dst != dst {
-               dst_timing.push(Trip { dst:dst, up:0.0, down:0.0 });
-            }
-
-            if let Some(prev_est) = prev_est {
-               let dt = est.timestamp - prev_est.timestamp;
-               if est.velocity > 0.0 {
-                  dst_timing[dl-1].up += dt;
-               } else {
-                  dst_timing[dl-1].down += dt;
-               }
-               let da = (est.acceleration - prev_est.acceleration).abs();
-               jerk = (jerk * (1.0 - dt)) + (da * dt);
-               if jerk.abs() > 0.22 {
-                  panic!("jerk is outside of acceptable limits: {} {:?}", jerk, est)
-               }
-            } else {
-               start_location = est.location;
-            }
-            if est.acceleration.abs() > 2.2 {
-               panic!("acceleration is outside of acceptable limits: {:?}", est)
-            }
-            if est.velocity.abs() > 5.5 {
-               panic!("velocity is outside of acceptable limits: {:?}", est)
-            }
-            prev_est = Some(est);
-         }
+      let (est, dst): (ElevatorState,u64) = serde_json::from_str(&l).unwrap();
+      let dl = dst_timing.len();
+      if dst_timing.len()==0 || dst_timing[dl-1].dst != dst {
+         dst_timing.push(Trip { dst:dst, up:0.0, down:0.0 });
       }
+
+      if let Some(prev_est) = prev_est {
+         let dt = est.timestamp - prev_est.timestamp;
+         if est.velocity > 0.0 {
+            dst_timing[dl-1].up += dt;
+         } else {
+            dst_timing[dl-1].down += dt;
+         }
+         let da = (est.acceleration - prev_est.acceleration).abs();
+         jerk = (jerk * (1.0 - dt)) + (da * dt);
+         if jerk.abs() > 0.22 {
+            panic!("jerk is outside of acceptable limits: {} {:?}", jerk, est)
+         }
+      } else {
+         start_location = est.location;
+      }
+      if est.acceleration.abs() > 2.2 {
+         panic!("acceleration is outside of acceptable limits: {:?}", est)
+      }
+      if est.velocity.abs() > 5.5 {
+         panic!("velocity is outside of acceptable limits: {:?}", est)
+      }
+      prev_est = Some(est);
    }
 
    //elevator should not backup
@@ -94,7 +90,7 @@ fn main()
 
    let mut trip_start_location = start_location;
    let mut theoretical_time = 0.0;
-   let floor_heights = esp.unwrap().get_floor_heights();
+   let floor_heights = esp.get_floor_heights();
    for trip in dst_timing.clone()
    {
       let next_floor = getCumulativeFloorHeight(floor_heights.clone(), trip.dst);
