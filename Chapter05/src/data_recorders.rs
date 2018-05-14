@@ -14,7 +14,7 @@ use serde_json;
 pub trait DataRecorder
 {
    fn init(&mut self, esp: Box<Building>, est: ElevatorState);
-   fn poll(&mut self, est: ElevatorState, dst: u64);
+   fn record(&mut self, est: ElevatorState, dst: u64);
    fn summary(&mut self);
 }
 
@@ -55,7 +55,7 @@ impl<W: Write> DataRecorder for SimpleDataRecorder<W>
       self.log.write_all(serde_json::to_string(&esp.serialize()).unwrap().as_bytes()).expect("write spec to log");
       self.log.write_all(b"\r\n").expect("write spec to log");
    }
-   fn poll(&mut self, est: ElevatorState, dst: u64)
+   fn record(&mut self, est: ElevatorState, dst: u64)
    {
       let datum = serde_json::to_string(&(est.clone(), dst)).unwrap();
       self.log.write_all(datum.as_bytes()).expect("write state to log");
@@ -119,13 +119,12 @@ fn variable_summary_stats(data: &Vec<f64>) -> (f64, f64)
 {
    //calculate statistics
    let N = data.len();
-   let sum = data.clone().into_iter()
-            .fold(0.0, |a, b| a+b);
+   let sum = data.iter().sum::<f64>();
    let avg = sum / (N as f64);
    let dev = (
        data.clone().into_iter()
        .map(|v| (v - avg).powi(2))
-       .fold(0.0, |a, b| a+b)
+       .sum::<f64>()
        / (N as f64)
    ).sqrt();
    (avg, dev)
@@ -134,7 +133,7 @@ fn variable_summary_stats(data: &Vec<f64>) -> (f64, f64)
 fn variable_summary_print<W: Write>(stdout: &mut raw::RawTerminal<W>, vname: String, avg: f64, dev: f64)
 {
    //print formatted output
-   write!(stdout, "Average of {:25}{:.6}\r\n", vname, avg);
-   write!(stdout, "Standard deviation of {:14}{:.6}\r\n", vname, dev);
-   write!(stdout, "\r\n");
+   writeln!(stdout, "Average of {:25}{:.6}", vname, avg);
+   writeln!(stdout, "Standard deviation of {:14}{:.6}", vname, dev);
+   writeln!(stdout, "");
 }

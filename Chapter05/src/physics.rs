@@ -60,7 +60,7 @@ pub fn simulate_elevator(esp: Box<Building>, est: ElevatorState, floor_requests:
       }
 
       //5.4. Print realtime statistics
-      dr.poll(est.clone(), dst);
+      dr.record(est.clone(), dst);
 
       //5.3. Adjust motor control to process next floor request
       est.motor_input = mc.adjust(&est, dst);
