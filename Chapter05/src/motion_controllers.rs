@@ -4,7 +4,7 @@ use buildings::{Building, getCumulativeFloorHeight};
 pub trait MotionController
 {
    fn init(&mut self, esp: Box<Building>, est: ElevatorState);
-   fn poll(&mut self, est: ElevatorState, dst: u64) -> f64;
+   fn adjust(&mut self, est: &ElevatorState, dst: u64) -> f64;
 }
 
 pub struct SmoothMotionController
@@ -21,7 +21,7 @@ impl MotionController for SmoothMotionController
       self.timestamp = est.timestamp;
    }
 
-   fn poll(&mut self, est: ElevatorState, dst: u64) -> f64
+   fn adjust(&mut self, est: &ElevatorState, dst: u64) -> f64
    {
       //5.3. Adjust motor control to process next floor request
 

@@ -25,9 +25,8 @@ pub fn deserialize(n: u64) -> Box<Building>
 pub fn getCarriageFloor(floorHeights: Vec<f64>, height: f64) -> u64
 {
    let mut c = 0.0;
-   for fi in 0..floorHeights.len()
-   {
-      c += floorHeights[fi];
+   for (fi, fht) in floorHeights.iter().enumerate() {
+      c += fht;
       if height <= c {
          return (fi as u64)
       }
@@ -37,12 +36,7 @@ pub fn getCarriageFloor(floorHeights: Vec<f64>, height: f64) -> u64
 
 pub fn getCumulativeFloorHeight(heights: Vec<f64>, floor: u64) -> f64
 {
-   let mut c = 0.0;
-   for fi in 0..floor
-   {
-      c += heights[fi as usize];
-   };
-   c
+   heights.iter().take(floor as usize).sum()
 }
 
 pub struct Building1;

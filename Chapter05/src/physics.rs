@@ -63,7 +63,7 @@ pub fn simulate_elevator(esp: Box<Building>, est: ElevatorState, floor_requests:
       dr.poll(est.clone(), dst);
 
       //5.3. Adjust motor control to process next floor request
-      est.motor_input = mc.poll(est.clone(), dst);
+      est.motor_input = mc.adjust(&est, dst);
 
       thread::sleep(time::Duration::from_millis(1));
    }

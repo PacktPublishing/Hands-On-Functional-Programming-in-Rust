@@ -6,6 +6,7 @@ use elevator::trip_planning::{FloorRequests, RequestQueue};
 use elevator::physics::{ElevatorState, simulate_elevator};
 use elevator::motion_controllers::{SmoothMotionController, MotionController};
 
+use std::collections::VecDeque;
 use floating_duration::{TimeAsFloat, TimeFormat};
 use std::{thread, time};
 use std::time::Instant;
@@ -31,7 +32,7 @@ pub fn run_operator()
    //3. Store input building description and floor requests
    let mut esp: Box<Building> = Box::new(Building1);
    let mut floor_requests: Box<RequestQueue> = Box::new(FloorRequests {
-      requests: Vec::new()
+      requests: VecDeque::new()
    });
 
    //4. Parse input and store as building description and static floor requests
@@ -148,7 +149,7 @@ pub fn run_operator()
          }
 
          //5.3. Adjust motor control to process next floor request
-         est.motor_input = mc.poll(est.clone(), dst);
+         est.motor_input = mc.adjust(&est, dst);
 
          //Adjust motor
          esp.get_motor_controller().adjust_motor(est.motor_input);

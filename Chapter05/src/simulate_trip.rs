@@ -7,6 +7,7 @@ use elevator::physics::{ElevatorState, simulate_elevator};
 use elevator::motion_controllers::{SmoothMotionController, MotionController};
 use elevator::data_recorders::{newSimpleDataRecorder, DataRecorder};
 
+use std::collections::VecDeque;
 use std::time::Instant;
 use std::env;
 use std::fs::File;
@@ -30,7 +31,7 @@ pub fn run_simulation()
    //3. Store input building description and floor requests
    let mut esp: Box<Building> = Box::new(Building1);
    let mut floor_requests: Box<RequestQueue> = Box::new(FloorRequests {
-      requests: Vec::new()
+      requests: VecDeque::new()
    });
 
    //4. Parse input and store as building description and floor requests
