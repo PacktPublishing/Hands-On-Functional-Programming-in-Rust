@@ -1,0 +1,22 @@
+[package]
+name = "Chapter8"
+version = "1.0.0"
+
+[dependencies]
+nix = "0.10"
+
+[[bin]]
+name = "process_a"
+path = "process_a.rs"
+
+[[bin]]
+name = "process_b"
+path = "process_b.rs"
+
+[[bin]]
+name = "fork1"
+path = "fork1.rs"
+
+[[bin]]
+name = "fork2"
+path = "fork2.rs"
