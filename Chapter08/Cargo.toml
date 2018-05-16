@@ -5,6 +5,8 @@ version = "1.0.0"
 [dependencies]
 nix = "0.10"
 thread-id = "3.3"
+lazy_static = "1.0"
+rand = "0.4.2"
 
 [[bin]]
 name = "process_a"
@@ -41,3 +43,7 @@ path = "thread3.rs"
 [[bin]]
 name = "thread4"
 path = "thread4.rs"
+
+[[bin]]
+name = "thread5"
+path = "thread5.rs"
