@@ -20,3 +20,7 @@ path = "fork1.rs"
 [[bin]]
 name = "fork2"
 path = "fork2.rs"
+
+[[bin]]
+name = "fork3"
+path = "fork3.rs"
