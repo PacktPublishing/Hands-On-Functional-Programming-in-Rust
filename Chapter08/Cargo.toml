@@ -4,6 +4,7 @@ version = "1.0.0"
 
 [dependencies]
 nix = "0.10"
+thread-id = "3.3"
 
 [[bin]]
 name = "process_a"
@@ -24,3 +25,15 @@ path = "fork2.rs"
 [[bin]]
 name = "fork3"
 path = "fork3.rs"
+
+[[bin]]
+name = "thread1"
+path = "thread1.rs"
+
+[[bin]]
+name = "thread2"
+path = "thread2.rs"
+
+[[bin]]
+name = "thread3"
+path = "thread3.rs"
