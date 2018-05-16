@@ -1,36 +1,42 @@
-extern crate nix;
-use nix::unistd::{fork,ForkResult};
 use std::{thread,time};
 use std::process;
+extern crate thread_id;
 use std::io::prelude::*;
-use std::net::TcpListener;
+use std::net::{TcpListener,TcpStream};
+use std::sync::{Arc,Mutex};
 
-fn serve(listener: TcpListener) -> ! {
-   for stream in listener.incoming() {
-      let mut buffer = [0; 2048];
-      let mut tcp = stream.unwrap();
-      tcp.read(&mut buffer).expect("tcp read failed");
-      let response = format!("respond from #{}\n", process::id());
-      tcp.write(response.as_bytes()).expect("tcp write failed");
+fn serve(incoming: Arc<Mutex<Vec<TcpStream>>>) {
+   let t = time::Duration::from_millis(10);
+   loop {
+      {
+         let mut incoming = incoming.lock().unwrap();
+         for stream in incoming.iter() {
+            let mut buffer = [0; 2048];
+            let mut tcp = stream;
+            tcp.read(&mut buffer).expect("tcp read failed");
+            let response = format!("respond from #{}:{}\n", process::id(), thread_id::get());
+            tcp.write(response.as_bytes()).expect("tcp write failed");
+         }
+         incoming.clear();
+      }
+      thread::sleep(t);
    }
-   panic!("unreachable");
 }
 
 fn main() {
    let listener = TcpListener::bind("127.0.0.1:8888").unwrap();
-   let mut children = Vec::new();
+   let incoming = Vec::new();
+   let incoming = Arc::new(Mutex::new(incoming));
 
    for _ in 0..3 {
-      match fork().expect("fork failed") {
-         ForkResult::Parent{ child: pid } => { children.push(pid); }
-         ForkResult::Child => {
-            serve(listener)
-         }
-      }
+      let incoming = Arc::clone(&incoming);
+      thread::spawn(move || {
+         serve(incoming);
+      });
    }
 
-   let t = time::Duration::from_millis(1000);
-   loop {
-      thread::sleep(t);
+   for stream in listener.incoming() {
+      let mut incoming = incoming.lock().unwrap();
+      (*incoming).push(stream.unwrap());
    }
 }
