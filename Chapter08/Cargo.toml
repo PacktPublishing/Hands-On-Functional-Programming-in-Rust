@@ -47,3 +47,12 @@ path = "thread4.rs"
 [[bin]]
 name = "thread5"
 path = "thread5.rs"
+
+[[bin]]
+name = "share1"
+path = "share1.rs"
+
+[[bin]]
+name = "share2"
+path = "share2.rs"
+
