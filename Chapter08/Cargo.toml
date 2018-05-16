@@ -37,3 +37,7 @@ path = "thread2.rs"
 [[bin]]
 name = "thread3"
 path = "thread3.rs"
+
+[[bin]]
+name = "thread4"
+path = "thread4.rs"
