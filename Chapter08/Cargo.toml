@@ -76,3 +76,7 @@ path = "share6.rs"
 name = "share7"
 path = "share7.rs"
 
+[[bin]]
+name = "pattern1"
+path = "pattern1.rs"
+
