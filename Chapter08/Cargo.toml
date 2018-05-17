@@ -56,3 +56,15 @@ path = "share1.rs"
 name = "share2"
 path = "share2.rs"
 
+[[bin]]
+name = "share3"
+path = "share3.rs"
+
+[[bin]]
+name = "share4"
+path = "share4.rs"
+
+[[bin]]
+name = "share5"
+path = "share5.rs"
+
