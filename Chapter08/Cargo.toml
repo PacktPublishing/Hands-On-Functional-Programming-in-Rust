@@ -80,3 +80,11 @@ path = "share7.rs"
 name = "pattern1"
 path = "pattern1.rs"
 
+[[bin]]
+name = "pattern2"
+path = "pattern2.rs"
+
+[[bin]]
+name = "pattern3"
+path = "pattern3.rs"
+
