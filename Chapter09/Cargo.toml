@@ -1,0 +1,12 @@
+[package]
+name = "Chapter9"
+version = "1.0.0"
+
+[dependencies]
+cpuprofiler = "0.0.2"
+flame = "0.2"
+rand = "0.4.2"
+
+[[bin]]
+name = "performance_release_mode"
+path = "performance_release_mode.rs"
