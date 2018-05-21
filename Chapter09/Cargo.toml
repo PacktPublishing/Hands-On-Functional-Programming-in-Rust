@@ -10,3 +10,23 @@ rand = "0.4.2"
 [[bin]]
 name = "performance_release_mode"
 path = "performance_release_mode.rs"
+
+[[bin]]
+name = "performance_omission1"
+path = "performance_omission1.rs"
+
+[[bin]]
+name = "performance_omission2"
+path = "performance_omission2.rs"
+
+[[bin]]
+name = "performance_profiling1"
+path = "performance_profiling1.rs"
+
+[[bin]]
+name = "performance_profiling2"
+path = "performance_profiling2.rs"
+
+[[bin]]
+name = "performance_profiling3"
+path = "performance_profiling3.rs"
