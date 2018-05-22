@@ -50,3 +50,11 @@ path = "performance_polynomial1.rs"
 [[bin]]
 name = "performance_polynomial2"
 path = "performance_polynomial2.rs"
+
+[[bin]]
+name = "performance_polynomial3"
+path = "performance_polynomial3.rs"
+
+[[bin]]
+name = "performance_polynomial4"
+path = "performance_polynomial4.rs"
