@@ -5,6 +5,7 @@ version = "1.0.0"
 [dependencies]
 flame = "0.2"
 rand = "0.4.2"
+requests = "0.0.30"
 
 [[bin]]
 name = "performance_release_mode"
@@ -33,3 +34,11 @@ path = "performance_profiling3.rs"
 [[bin]]
 name = "performance_profiling4"
 path = "performance_profiling4.rs"
+
+[[bin]]
+name = "performance_constant"
+path = "performance_constant.rs"
+
+[[bin]]
+name = "performance_logarithmic"
+path = "performance_logarithmic.rs"
