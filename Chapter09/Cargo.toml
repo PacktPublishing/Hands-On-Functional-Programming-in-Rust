@@ -42,3 +42,11 @@ path = "performance_constant.rs"
 [[bin]]
 name = "performance_logarithmic"
 path = "performance_logarithmic.rs"
+
+[[bin]]
+name = "performance_polynomial1"
+path = "performance_polynomial1.rs"
+
+[[bin]]
+name = "performance_polynomial2"
+path = "performance_polynomial2.rs"
