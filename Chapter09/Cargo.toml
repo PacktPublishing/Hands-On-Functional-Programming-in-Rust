@@ -3,7 +3,6 @@ name = "Chapter9"
 version = "1.0.0"
 
 [dependencies]
-cpuprofiler = "0.0.2"
 flame = "0.2"
 rand = "0.4.2"
 
@@ -30,3 +29,7 @@ path = "performance_profiling2.rs"
 [[bin]]
 name = "performance_profiling3"
 path = "performance_profiling3.rs"
+
+[[bin]]
+name = "performance_profiling4"
+path = "performance_profiling4.rs"
