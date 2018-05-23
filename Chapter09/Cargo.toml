@@ -63,3 +63,7 @@ path = "performance_polynomial4.rs"
 [[bin]]
 name = "performance_exponential"
 path = "performance_exponential.rs"
+
+[[bin]]
+name = "performance_reference"
+path = "performance_reference.rs"
