@@ -6,6 +6,7 @@ version = "1.0.0"
 flame = "0.2"
 rand = "0.4.2"
 requests = "0.0.30"
+rusty-machine = "0.5.4"
 
 [[bin]]
 name = "performance_release_mode"
@@ -58,3 +59,7 @@ path = "performance_polynomial3.rs"
 [[bin]]
 name = "performance_polynomial4"
 path = "performance_polynomial4.rs"
+
+[[bin]]
+name = "performance_exponential"
+path = "performance_exponential.rs"
