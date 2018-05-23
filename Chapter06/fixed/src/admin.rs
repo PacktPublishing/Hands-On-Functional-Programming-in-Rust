@@ -42,13 +42,14 @@ pub fn toErrorCode(i: i32) -> ErrorCode {
    }
 }
 
-pub struct AuthorizedSessionRaw(*const c_void);
+struct AuthorizedSessionInner(*const c_void);
+
 #[derive(Clone)]
 pub struct AuthorizedSession
 {
-   session: Rc<AuthorizedSessionRaw>
+   session: Rc<AuthorizedSessionInner>
 }
-impl Drop for AuthorizedSessionRaw {
+impl Drop for AuthorizedSessionInner {
    fn drop(&mut self) {
       unsafe {
          magic::free_override_session(self.0);
@@ -65,7 +66,7 @@ pub fn authorize_override() -> Result<AuthorizedSession,ErrorCode> {
       magic::poll_override_session()
    };
    let session = AuthorizedSession {
-      session: Rc::new(AuthorizedSessionRaw(session))
+      session: Rc::new(AuthorizedSessionInner(session))
    };
    check_error(session)
 }
@@ -79,7 +80,7 @@ pub fn authorize_privileged() -> Result<AuthorizedSession,ErrorCode> {
       magic::poll_physical_override_privileged_session()
    };
    let session = AuthorizedSession {
-      session: Rc::new(AuthorizedSessionRaw(session))
+      session: Rc::new(AuthorizedSessionInner(session))
    };
    check_error(session)
 }
@@ -93,7 +94,7 @@ pub fn authorize_admin() -> Result<AuthorizedSession,ErrorCode> {
       magic::poll_physical_override_admin_session()
    };
    let session = AuthorizedSession {
-      session: Rc::new(AuthorizedSessionRaw(session))
+      session: Rc::new(AuthorizedSessionInner(session))
    };
    check_error(session)
 }
