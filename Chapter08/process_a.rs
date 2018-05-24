@@ -2,10 +2,9 @@ use std::process::Command;
 use std::env::current_exe;
 
 fn main() {
-   let mut path = current_exe()
-                 .expect("could not find current executable");
-   path.pop();
-   path.push("process_b");
+   let path = current_exe()
+             .expect("could not find current executable");
+   let path = path.with_file_name("process_b");
 
    let mut children = Vec::new();
    for _ in 0..3 {
