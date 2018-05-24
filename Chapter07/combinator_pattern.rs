@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate chomp;
 use chomp::prelude::*;
-use std::sync::{Arc,Mutex};
+use std::rc::Rc;
 
 #[derive(Debug, Eq, PartialEq)]
 struct Name<B: Buffer> {
@@ -25,7 +25,7 @@ fn name<I: U8Input>(i: I) -> SimpleResult<I, Name<I::Buffer>> {
 
 #[derive(Clone)]
 struct ParseState<A: Clone> {
-   buffer: Arc<Mutex<Vec<char>>>,
+   buffer: Rc<Vec<char>>,
    index: usize,
    a: A
 }
@@ -33,24 +33,23 @@ impl<A: Clone> ParseState<A> {
    fn new(a: A, buffer: String) -> ParseState<A> {
       let buffer: Vec<char> = buffer.chars().collect();
       ParseState {
-         buffer: Arc::new(Mutex::new(buffer)),
+         buffer: Rc::new(buffer),
          index: 0,
          a: a
       }
    }
    fn next(&self) -> (ParseState<A>,Option<char>) {
-      let buf = self.buffer.lock().unwrap();
-      if self.index < buf.len() {
-         let new_char = buf[self.index];
+      if self.index < self.buffer.len() {
+         let new_char = self.buffer[self.index];
          let new_index = self.index + 1;
          (ParseState {
-            buffer: Arc::clone(&self.buffer),
+            buffer: Rc::clone(&self.buffer),
             index: new_index,
             a: self.a.clone()
          }, Some(new_char))
       } else {
          (ParseState {
-            buffer: Arc::clone(&self.buffer),
+            buffer: Rc::clone(&self.buffer),
             index: self.index,
             a: self.a.clone()
          },None)

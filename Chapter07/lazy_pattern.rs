@@ -1,24 +1,24 @@
+use std::rc::Rc;
 use std::sync::{Arc,Mutex};
 
 #[derive(Clone)]
 struct LazyList<A: Clone> {
-   buffer: Arc<Mutex<Vec<A>>>,
+   buffer: Rc<Vec<A>>,
    index: usize
 }
 impl<A: Clone> LazyList<A> {
    fn new(buf: Vec<A>) -> LazyList<A> {
       LazyList {
-         buffer: Arc::new(Mutex::new(buf)),
+         buffer: Rc::new(buf),
          index: 0
       }
    }
    fn next(&self) -> Option<(LazyList<A>,A)> {
-      let buf = self.buffer.lock().unwrap();
-      if self.index < buf.len() {
-         let new_item = buf[self.index].clone();
+      if self.index < self.buffer.len() {
+         let new_item = self.buffer[self.index].clone();
          let new_index = self.index + 1;
          Some((LazyList {
-            buffer: Arc::clone(&self.buffer),
+            buffer: Rc::clone(&self.buffer),
             index: new_index
          },new_item))
       } else {
@@ -63,7 +63,7 @@ impl<St: 'static,A: 'static,B: 'static> ReactiveUnit<St,A,B> {
          })
       }
    }
-   fn rbind<St2: 'static,C: 'static>(&self, other: ReactiveUnit<St2,B,C>) -> ReactiveUnit<(Arc<Mutex<St>>,Arc<Mutex<St2>>),A,C> {
+   fn plus<St2: 'static,C: 'static>(&self, other: ReactiveUnit<St2,B,C>) -> ReactiveUnit<(Arc<Mutex<St>>,Arc<Mutex<St2>>),A,C> {
       let ev1 = Arc::clone(&self.event_handler);
       let st1 = Arc::clone(&self.state);
       let ev2 = Arc::clone(&other.event_handler);
