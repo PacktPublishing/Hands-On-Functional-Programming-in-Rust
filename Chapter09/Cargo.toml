@@ -79,3 +79,8 @@ path = "debugging_heartbeat.rs"
 [[bin]]
 name = "debugging_buggy_worker"
 path = "debugging_buggy_worker.rs"
+
+[[bin]]
+name = "debugging_assert"
+path = "debugging_assert.rs"
+
