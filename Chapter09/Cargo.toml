@@ -67,3 +67,7 @@ path = "performance_exponential.rs"
 [[bin]]
 name = "performance_reference"
 path = "performance_reference.rs"
+
+[[bin]]
+name = "debugging_result"
+path = "debugging_result.rs"
