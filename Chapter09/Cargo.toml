@@ -84,3 +84,6 @@ path = "debugging_buggy_worker.rs"
 name = "debugging_assert"
 path = "debugging_assert.rs"
 
+[[bin]]
+name = "metaprogramming_grammar"
+path = "metaprogramming_grammar.rs"
