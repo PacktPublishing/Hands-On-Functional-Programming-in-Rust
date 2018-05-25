@@ -7,6 +7,7 @@ flame = "0.2"
 rand = "0.4.2"
 requests = "0.0.30"
 rusty-machine = "0.5.4"
+procmacro = { path = "procmacro" }
 
 [[bin]]
 name = "performance_release_mode"
@@ -91,3 +92,7 @@ path = "metaprogramming_grammar.rs"
 [[bin]]
 name = "metaprogramming_ebnf"
 path = "metaprogramming_ebnf.rs"
+
+[[bin]]
+name = "metaprogramming_procmacro"
+path = "metaprogramming_procmacro.rs"
