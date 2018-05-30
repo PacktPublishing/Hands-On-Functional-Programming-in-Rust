@@ -1,0 +1,10 @@
+[package]
+name = "procmacro2"
+version = "1.0.0"
+
+[dependencies]
+syn = "0.12"
+quote = "0.4"
+
+[lib]
+proc-macro = true
