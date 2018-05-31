@@ -16,13 +16,13 @@ fn poll(&mut self, est: ElevatorState, dst: u64) -> MotorInput;
 }
 ```
 
-**We assume familiarity with the concepts from the first 10 chapters of Rust
+* We assume familiarity with the concepts from the first 10 chapters of Rust
 documentation (https:/​/​doc.​rust-​lang.​org/​book/​). Some of the material from
 these chapters is fairly advanced, so we will also explain that here when relevant.
 However, the knowledge of syntax and very basic features will be expected.
-**Clone the GitHub code repository and follow along. Tweak the examples and see
+* Clone the GitHub code repository and follow along. Tweak the examples and see
 what effects you can create.
-**Stay curious. Some of the keywords we mentioned could fill an entire book with
+* Stay curious. Some of the keywords we mentioned could fill an entire book with
 unique content. Some of these topics presented are so pervasive that they have
 decent Wikipedia articles to explain and expand on the concepts. However,
 knowing the keyword is required to even know what to search for.
