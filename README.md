@@ -16,6 +16,7 @@ fn poll(&mut self, est: ElevatorState, dst: u64) -> MotorInput;
 }
 ```
 
+In order to successfully read through this book and work out all the code samples, we expect readers to fulfill the following
 * We assume familiarity with the concepts from the first 10 chapters of Rust
 documentation (https:/​/​doc.​rust-​lang.​org/​book/​). Some of the material from
 these chapters is fairly advanced, so we will also explain that here when relevant.
