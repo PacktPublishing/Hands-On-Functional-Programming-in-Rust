@@ -11,8 +11,8 @@ The code will look like the following:
 ```
 pub trait MotorController
 {
-fn init(&mut self, esp: ElevatorSpecification, est: ElevatorState);
-fn poll(&mut self, est: ElevatorState, dst: u64) -> MotorInput;
+  fn init(&mut self, esp: ElevatorSpecification, est: ElevatorState);
+  fn poll(&mut self, est: ElevatorState, dst: u64) -> MotorInput;
 }
 ```
 
