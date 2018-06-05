@@ -1,5 +1,5 @@
-# Hands-On Functional Programming in RUST
-This is the code repository for [Hands-On Functional Programming in RUST](https://www.packtpub.com/application-development/hands-functional-programming-rust?utm_source=github&utm_medium=repository&utm_campaign=9781788839358), published by [Packt](https://www.packtpub.com/?utm_source=github). It contains all the supporting project files necessary to work through the book from start to finish.
+# Hands-On Functional Programming in Rust
+This is the code repository for [Hands-On Functional Programming in Rust](https://www.packtpub.com/application-development/hands-functional-programming-rust?utm_source=github&utm_medium=repository&utm_campaign=9781788839358), published by [Packt](https://www.packtpub.com/?utm_source=github). It contains all the supporting project files necessary to work through the book from start to finish.
 ## About the Book
 Functional Programming allows developers to divide programs into smaller, reusable components that ease the creation, testing, and maintenance of software as a whole. Combined with the power of Rust, you can develop robust and scalable applications that fulfill modern day software requirements. This book will help you discover all the Rust features that can be used to build software in a functional way.
 ## Instructions and Navigation
