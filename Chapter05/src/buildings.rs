@@ -62,7 +62,7 @@ impl Building for Building1 {
    }
    fn serialize(&self) -> u64
    {
-      2
+      1
    }
 }
 
