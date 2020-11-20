@@ -1,6 +1,6 @@
 
-int motor3_adjust_motor(double target_force){
+double motor3_adjust_motor(double target_force){
   //real driver would do something here
   //interface with physical components
-  return 0;
+  return target_force;
 }

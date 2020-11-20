@@ -98,7 +98,7 @@ impl MotionController for SmoothMotionController
          //may happen if time delta underflows
          0.0
      } else {
-         0.0
+         target_force
      }
    }
 }
